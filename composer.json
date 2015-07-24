@@ -1,0 +1,19 @@
+{
+    "name": "danielneis/moodle-availability_maxviews",
+    "description": "A Availability Condition for Moodle that limits the number of views of an activity.",
+    "type": "moodle-availability",
+    "license": "GPLv3",
+    "authors": [
+        {
+            "name": "Daniel Neis Araujo",
+            "email": "danielneis@gmail.com"
+        }
+    ],
+    "require": {
+        "composer/installers": "~1.0"
+    },
+    "extra": {
+        "installer-name": "maxviews"
+    }
+}
+
