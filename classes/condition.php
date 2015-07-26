@@ -41,11 +41,19 @@ class condition extends \core_availability\condition {
      * @throws \coding_exception If invalid data structure.
      */
     public function __construct($structure) {
-        $this->viewslimit = $structure->viewslimit;
+        if (!isset($structure->viewslimit)) {
+            $this->viewslimit = 0;
+        } else {
+            $this->viewslimit = (int)$structure->viewslimit;
+        }
     }
 
     public function save() {
-        return (object)array('type' => 'maxviews', 'viewslimit' => $this->viewslimit);
+        $result = (object)array('type' => 'maxviews');
+        if ($this->viewlimit) {
+            $result->viewslimit = $this->viewslimit;
+        }
+        return $result;
     }
 
     /**
@@ -56,8 +64,8 @@ class condition extends \core_availability\condition {
      *
      * @return stdClass Object representing condition
      */
-    public static function get_json() {
-        return (object)array('type' => 'maxviews', 'viewslimit' => 10);
+    public static function get_json($viewslimit = 10) {
+        return (object)array('type' => 'maxviews', 'viewslimit' => $viewslimit);
     }
 
     public function is_available($not, \core_availability\info $info, $grabthelot, $userid) {
@@ -90,14 +98,7 @@ class condition extends \core_availability\condition {
         return gmdate('Y-m-d H:i:s');
     }
 
-    public function update_after_restore(
-            $restoreid, $courseid, \base_logger $logger, $name) {
-        // Update the date, if restoring with changed date.
-        $dateoffset = \core_availability\info::get_restore_date_offset($restoreid);
-        if ($dateoffset) {
-            $this->time += $dateoffset;
-            return true;
-        }
-        return false;
+    public function update_after_restore($restoreid, $courseid, \base_logger $logger, $name) {
+        return true;
     }
 }

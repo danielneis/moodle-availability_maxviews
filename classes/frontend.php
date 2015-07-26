@@ -34,17 +34,10 @@ defined('MOODLE_INTERNAL') || die();
 class frontend extends \core_availability\frontend {
 
     protected function get_javascript_strings() {
-        return array('ajaxerror');
+        return array('ajaxerror', 'fieldlabel');
     }
 
-    protected function allow_add($course, \cm_info $cm = null,
-            \section_info $section = null) {
+    protected function allow_add($course, \cm_info $cm = null, \section_info $section = null) {
         return true;
-    }
-
-    protected function get_javascript_init_params($course, \cm_info $cm = null,
-            \section_info $section = null) {
-
-        return array((object)array('contextid' => $cm->context->id, 'viewslimit' => 10));
     }
 }

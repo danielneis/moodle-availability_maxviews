@@ -11,32 +11,20 @@ M.availability_maxviews = M.availability_maxviews || {};
  */
 M.availability_maxviews.form = Y.Object(M.core_availability.plugin);
 
-/**
- * Initialises this plugin.
- *
- * Because the date fields are complex depending on Moodle calendar settings,
- * we create the HTML for these fields in PHP and pass it to this method.
- *
- * @method initInner
- * @param {String} html HTML to use for date fields
- * @param {Number} defaultTime Time value that corresponds to initial fields
- */
-M.availability_maxviews.form.initInner = function(contextid, viewslimit) {
-    this.contextid = contextid;
-    this.viewslimit = viewslimit;
-    this.label = 'Maximum views is less than:';
-};
-
 M.availability_maxviews.form.getNode = function(json) {
 
-    // Example controls contain only one tickbox.
-    var html = '<label>' + this.label + ' <input type="number" /></label>';
+    // Create HTML structure.
+    var html = '<label>' +
+                M.util.get_string('fieldlabel', 'availability_maxviews') +
+              ' <input name="maxviews" type="number" /></label>';
     var node = Y.Node.create('<span>' + html + '</span>');
 
     // Set initial values based on the value from the JSON data in Moodle
     // database. This will have values undefined if creating a new one.
     if (json.viewslimit) {
-        node.one('input').set('value', json.viewslimit);
+        node.one('input[name=maxviews]').set('value', json.viewslimit);
+    } else {
+        node.one('input[name=maxviews]').set('value', 10);
     }
 
     // Add event handlers (first time only). You can do this any way you
@@ -44,12 +32,12 @@ M.availability_maxviews.form.getNode = function(json) {
     if (!M.availability_maxviews.form.addedEvents) {
         M.availability_maxviews.form.addedEvents = true;
         var root = Y.one('#fitem_id_availabilityconditionsjson');
-        root.delegate('click', function() {
+        root.delegate('change', function() {
                 // The key point is this update call. This call will update
                 // the JSON data in the hidden field in the form, so that it
                 // includes the new value of the checkbox.
                 M.core_availability.form.update();
-                }, '.availability_maxviews input');
+                }, '.availability_maxviews input[name=maxviews]');
     }
 
     return node;
@@ -61,7 +49,7 @@ M.availability_maxviews.form.fillValue = function(value, node) {
     // to use within the JSON data in the form. Should be compatible
     // with the structure used in the __construct and save functions
     // within condition.php.
-    var viewslimitinput = node.one('input');
+    var viewslimitinput = node.one('input[name=maxviews]');
     value.viewslimit = viewslimitinput.get('value');
 };
 
@@ -78,7 +66,7 @@ M.availability_completion.form.fillErrors = function(errors, node) {
         // passing your component name (availability_maxviews) and the
         // name of a string within your lang file (error_message)
         // which will be shown if they submit the form.
-        node.one('input');
+        node.one('input[name=maxviews]');
         errors.push('availability_maxviews:error_message');
     }
 };
