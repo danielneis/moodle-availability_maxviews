@@ -71,7 +71,10 @@ class condition extends \core_availability\condition {
     public function is_available($not, \core_availability\info $info, $grabthelot, $userid) {
 
         $logmanager = get_log_manager();
-        $readers = $logmanager->get_readers('core\log\sql_reader');
+        if (!$readers = $logmanager->get_readers('core\log\sql_reader')) {
+            // Should be using 2.8, use old class.
+            $readers = $logmanager->get_readers('core\log\sql_select_reader');
+        }
         $reader = array_pop($readers);
         $context = $info->get_context();
         $viewscount = $reader->get_events_select_count('contextid = :context AND userid = :userid AND crud = :crud',
