@@ -26,5 +26,5 @@ $string['ajaxerror'] = 'Error contacting server';
 $string['pluginname'] = 'Max Views';
 $string['title'] = 'Maximum Views';
 $string['description'] = 'Prevent access after user view the module a certain number of times.';
-$string['eitherdescription'] = 'you reach the limit {$a} views';
+$string['eitherdescription'] = 'you have not reached the limit of {$a} views';
 $string['fieldlabel'] = 'Maximum views is less than:';
