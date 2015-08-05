@@ -18,6 +18,7 @@
  * Version info.
  *
  * @package availability_maxviews
+ * @copyright 2015 Daniel Neis Araujo
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

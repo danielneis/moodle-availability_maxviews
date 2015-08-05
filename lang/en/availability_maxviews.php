@@ -17,8 +17,8 @@
 /**
  * Language strings.
  *
- * @package availability_date
- * @copyright 2014 The Open University
+ * @package availability_maxviews
+ * @copyright 2015 Daniel Neis
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

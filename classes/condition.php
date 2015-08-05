@@ -18,6 +18,7 @@
  * Date condition.
  *
  * @package availability_maxviews
+ * @copyright 2015 Daniel Neis Araujo
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -48,6 +49,9 @@ class condition extends \core_availability\condition {
         }
     }
 
+    /**
+     * Create object to be saved representing this condition.
+     */
     public function save() {
         $result = (object)array('type' => 'maxviews');
         if ($this->viewlimit) {
@@ -62,12 +66,25 @@ class condition extends \core_availability\condition {
      * Intended for unit testing, as normally the JSON values are constructed
      * by JavaScript code.
      *
+     * @param int $viewslimit The limit of views for users
      * @return stdClass Object representing condition
      */
     public static function get_json($viewslimit = 10) {
         return (object)array('type' => 'maxviews', 'viewslimit' => $viewslimit);
     }
 
+    /**
+     * Determines whether a particular item is currently available
+     * according to this availability condition.
+     *
+     * @param bool $not Set true if we are inverting the condition
+     * @param info $info Item we're checking
+     * @param bool $grabthelot Performance hint: if true, caches information
+     *   required for all course-modules, to make the front page and similar
+     *   pages work more quickly (works only for current user)
+     * @param int $userid User ID to check availability for
+     * @return bool True if available
+     */
     public function is_available($not, \core_availability\info $info, $grabthelot, $userid) {
         $logmanager = get_log_manager();
         if (!$readers = $logmanager->get_readers('core\log\sql_reader')) {
@@ -83,20 +100,19 @@ class condition extends \core_availability\condition {
             $allow = !$allow;
         }
         return $allow;
-
     }
 
-    public function get_description($full, $not, \core_availability\info $info) {
-        return $this->get_either_description($not, false, $info);
-    }
     /**
-     * Shows the description using the different lang strings for the standalone
-     * version or the full one.
+     * Obtains a string describing this restriction (whether or not
+     * it actually applies).
      *
-     * @param bool $not True if NOT is in force
-     * @param bool $standalone True to use standalone lang strings
+     * @param bool $full Set true if this is the 'full information' view
+     * @param bool $not Set true if we are inverting the condition
+     * @param info $info Item we're checking
+     * @return string Information string (for admin) about all restrictions on
+     *   this item
      */
-    protected function get_either_description($not, $standalone, $info) {
+    public function get_description($full, $not, \core_availability\info $info) {
         global $USER;
 
         $logmanager = get_log_manager();
@@ -116,11 +132,13 @@ class condition extends \core_availability\condition {
         return get_string('eitherdescription', 'availability_maxviews', $a);
     }
 
+    /**
+     * Obtains a representation of the options of this condition as a string,
+     * for debugging.
+     *
+     * @return string Text representation of parameters
+     */
     protected function get_debug_string() {
         return gmdate('Y-m-d H:i:s');
-    }
-
-    public function update_after_restore($restoreid, $courseid, \base_logger $logger, $name) {
-        return true;
     }
 }
