@@ -69,7 +69,6 @@ class condition extends \core_availability\condition {
     }
 
     public function is_available($not, \core_availability\info $info, $grabthelot, $userid) {
-
         $logmanager = get_log_manager();
         if (!$readers = $logmanager->get_readers('core\log\sql_reader')) {
             // Should be using 2.8, use old class.
@@ -79,12 +78,16 @@ class condition extends \core_availability\condition {
         $context = $info->get_context();
         $viewscount = $reader->get_events_select_count('contextid = :context AND userid = :userid AND crud = :crud',
                                                   array('context' => $context->id, 'userid' => $userid, 'crud' => 'r'));
-        return ($viewscount < $this->viewslimit);
+        $allow = ($viewscount < $this->viewslimit);
+        if ($not) {
+            $allow = !$allow;
+        }
+        return $allow;
 
     }
 
     public function get_description($full, $not, \core_availability\info $info) {
-        return $this->get_either_description($not, false);
+        return $this->get_either_description($not, false, $info);
     }
     /**
      * Shows the description using the different lang strings for the standalone
@@ -93,8 +96,24 @@ class condition extends \core_availability\condition {
      * @param bool $not True if NOT is in force
      * @param bool $standalone True to use standalone lang strings
      */
-    protected function get_either_description($not, $standalone) {
-        return get_string('eitherdescription', 'availability_maxviews', $this->viewslimit);
+    protected function get_either_description($not, $standalone, $info) {
+        global $USER;
+
+        $logmanager = get_log_manager();
+        if (!$readers = $logmanager->get_readers('core\log\sql_reader')) {
+            // Should be using 2.8, use old class.
+            $readers = $logmanager->get_readers('core\log\sql_select_reader');
+        }
+        $reader = array_pop($readers);
+        $context = $info->get_context();
+        $viewscount = $reader->get_events_select_count('contextid = :context AND userid = :userid AND crud = :crud',
+                                                  array('context' => $context->id, 'userid' => $USER->id, 'crud' => 'r'));
+
+        $a = new \stdclass();
+        $a->viewslimit = $this->viewslimit;
+        $a->viewscount = $viewscount;
+
+        return get_string('eitherdescription', 'availability_maxviews', $a);
     }
 
     protected function get_debug_string() {
