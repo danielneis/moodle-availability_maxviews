@@ -16,9 +16,9 @@ M.availability_maxviews.form = Y.Object(M.core_availability.plugin);
 M.availability_maxviews.form.getNode = function(json) {
 
     // Create HTML structure.
-    var html = '<label>' +
-                M.util.get_string('fieldlabel', 'availability_maxviews') +
-              ' <input name="maxviews" type="number" /></label>';
+    var html = '<label>';
+    html += M.util.get_string('fieldlabel', 'availability_maxviews');
+    html += ' <input name="maxviews" type="number" /></label>';
     var node = Y.Node.create('<span>' + html + '</span>');
 
     // Set initial values based on the value from the JSON data in Moodle
