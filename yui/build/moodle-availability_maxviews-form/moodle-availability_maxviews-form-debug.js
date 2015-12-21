@@ -61,7 +61,7 @@ M.availability_completion.form.fillErrors = function(errors, node) {
     // error will show immediately as a 'Please set' tag, and if the
     // user saves the form with an error still in place, they'll see
     // the actual error text.
- 
+
     // In this example an error is not possible...
     if (false) {
         // ...but this is how you would add one if required. This is
