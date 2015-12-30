@@ -35,7 +35,7 @@ Feature: availability_maxviews
       | Page content | Test   |
     And I expand all fieldsets
     And I click on "Add restriction..." "button"
-    And I click on "Max Views" "button" in the "Add restriction..." "dialogue"
+    And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
     And I click on ".availability-item .availability-eye img" "css_element"
     And I set the field "maxviews" to "0"
     And I press "Save and return to course"
