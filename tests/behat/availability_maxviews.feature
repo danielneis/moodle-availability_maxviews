@@ -65,6 +65,51 @@ Feature: availability_maxviews
     Then I should not see "Assignment 2" in the "region-main" "region"
 
   @javascript
+  Scenario: Max views must work with Label activity
+    # Basic setup.
+    Given I log in as "teacher1"
+    And I am on site homepage
+    And I follow "Course 1"
+    And I turn editing mode on
+
+    # Add a Label with 0 max view allowed.
+    And I add a "Label" to section "1"
+    And I set the following fields to these values:
+      | Label text | Label 1 |
+      | Visible | Show |
+    And I expand all fieldsets
+    And I click on "Add restriction..." "button"
+    And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
+    And I click on ".availability-item .availability-eye img" "css_element"
+    And I set the field "maxviews" to "0"
+    And I press "Save and return to course"
+
+    # Add a Label with 1 max view allowed.
+    And I add a "Label" to section "1"
+    And I set the following fields to these values:
+      | Label text | Label 2 |
+      | Visible | Show |
+    And I expand all fieldsets
+    And I click on "Add restriction..." "button"
+    And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
+    And I click on ".availability-item .availability-eye img" "css_element"
+    And I set the field "maxviews" to "1"
+    And I press "Save and return to course"
+
+    # Log back in as student.
+    When I log out
+    And I log in as "student1"
+    And I am on site homepage
+    And I follow "Course 1"
+
+    Then I should not see "Label 1" in the "region-main" "region"
+    Then I should see "Label 2" in the "region-main" "region"
+
+    When I follow "Course 1"
+
+    Then I should not see "Label 2" in the "region-main" "region"
+
+  @javascript
   Scenario: Max views must work with Page activity
     # Basic setup.
     Given I log in as "teacher1"
