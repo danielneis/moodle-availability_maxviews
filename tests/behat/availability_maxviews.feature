@@ -118,6 +118,56 @@ Feature: availability_maxviews
     Then I should not see "Lesson 2" in the "region-main" "region"
 
   @javascript
+  Scenario: Max views must work with URL resources
+    # Basic setup.
+    Given I log in as "teacher1"
+    And I am on site homepage
+    And I follow "Course 1"
+    And I turn editing mode on
+
+    # Add a Page with 0 max view allowed.
+    And I add a "URL" to section "1"
+    And I set the following fields to these values:
+      | Name | URL 1 |
+      | Description  | Test URL description 1 |
+      | External URL | https://www.example.com |
+    And I expand all fieldsets
+    And I click on "Add restriction..." "button"
+    And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
+    And I click on ".availability-item .availability-eye img" "css_element"
+    And I set the field "maxviews" to "0"
+    And I press "Save and return to course"
+
+    # Add a Page with 1 max view allowed.
+    And I add a "Wiki" to section "1"
+    And I set the following fields to these values:
+      | Name | URL 2 |
+      | Description  | Test URL description 2 |
+      | External URL | https://www.secondexample.com |
+    And I expand all fieldsets
+    And I click on "Add restriction..." "button"
+    And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
+    And I click on ".availability-item .availability-eye img" "css_element"
+    And I set the field "maxviews" to "1"
+    And I press "Save and return to course"
+
+    # Log back in as student.
+    When I log out
+    And I log in as "student1"
+    And I am on site homepage
+    And I follow "Course 1"
+
+    # Page 1 should not appear, but page 2 does.
+    Then I should not see "URL 1" in the "region-main" "region"
+    And I should see "URL 2" in the "region-main" "region"
+
+    When I follow "URL 2"
+    And I follow "Course 1"
+
+    # Page 2 should not appear anymore.
+    Then I should not see "URL 2" in the "region-main" "region"
+
+  @javascript
   Scenario: Max views must work with Wiki activity
     # Basic setup.
     Given I log in as "teacher1"
