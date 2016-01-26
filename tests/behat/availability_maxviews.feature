@@ -80,7 +80,7 @@ Feature: availability_maxviews
     # Add a Page with 0 max view allowed.
     And I add a "Lesson" to section "1"
     And I set the following fields to these values:
-      | Name | Test lesson 1 |
+      | Name | Lesson 1 |
       | Description  | Test lesson description 1 |
     And I expand all fieldsets
     And I click on "Add restriction..." "button"
@@ -92,7 +92,7 @@ Feature: availability_maxviews
     # Add a Page with 1 max view allowed.
     And I add a "Lesson" to section "1"
     And I set the following fields to these values:
-      | Name | Test lesson 2 |
+      | Name | Lesson 2 |
       | Description  | Test lesson description 2 |
     And I expand all fieldsets
     And I click on "Add restriction..." "button"
