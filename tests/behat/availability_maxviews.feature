@@ -116,3 +116,53 @@ Feature: availability_maxviews
 
     # Page 2 should not appear anymore.
     Then I should not see "Lesson 2" in the "region-main" "region"
+
+  @javascript
+  Scenario: Max views must work with Wiki activity
+    # Basic setup.
+    Given I log in as "teacher1"
+    And I am on site homepage
+    And I follow "Course 1"
+    And I turn editing mode on
+
+    # Add a Page with 0 max view allowed.
+    And I add a "Wiki" to section "1"
+    And I set the following fields to these values:
+      | Wiki name | Wiki 1 |
+      | Description  | Test wiki description 1 |
+      | First page name | First page |
+    And I expand all fieldsets
+    And I click on "Add restriction..." "button"
+    And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
+    And I click on ".availability-item .availability-eye img" "css_element"
+    And I set the field "maxviews" to "0"
+    And I press "Save and return to course"
+
+    # Add a Page with 1 max view allowed.
+    And I add a "Wiki" to section "1"
+    And I set the following fields to these values:
+      | Wiki name | Wiki 2 |
+      | Description  | Test wiki description 2 |
+      | First page name | First page |
+    And I expand all fieldsets
+    And I click on "Add restriction..." "button"
+    And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
+    And I click on ".availability-item .availability-eye img" "css_element"
+    And I set the field "maxviews" to "1"
+    And I press "Save and return to course"
+
+    # Log back in as student.
+    When I log out
+    And I log in as "student1"
+    And I am on site homepage
+    And I follow "Course 1"
+
+    # Page 1 should not appear, but page 2 does.
+    Then I should not see "Wiki 1" in the "region-main" "region"
+    Then I should see "Wiki 2" in the "region-main" "region"
+
+    When I follow "Wiki 2"
+    And I follow "Course 1"
+
+    # Page 2 should not appear anymore.
+    Then I should not see "Wiki 2" in the "region-main" "region"
