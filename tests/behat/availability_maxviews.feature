@@ -78,10 +78,9 @@ Feature: availability_maxviews
     And I turn editing mode on
 
     # Add a Page with 0 max view allowed.
-    And I add a "Assignment" to section "1"
-    And I set the following fields to these values:
-      | Name         | Assignment 1 |
-      | Description  | Test   |
+    And I add a "Assignment" to section "1" and I fill the form with:
+      | Assignment name | Test assignment 1 |
+      | Description  | Test 1 |
     And I expand all fieldsets
     And I click on "Add restriction..." "button"
     And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
@@ -90,10 +89,9 @@ Feature: availability_maxviews
     And I press "Save and return to course"
 
     # Add a Page with 1 max view allowed.
-    And I add a "Assignment" to section "1"
-    And I set the following fields to these values:
-      | Name         | Assignment 2 |
-      | Description  | Test   |
+    And I add a "Assignment" to section "1" and I fill the form with:
+      | Assignment name | Test assignment 2 |
+      | Description  | Test 2 |
     And I expand all fieldsets
     And I click on "Add restriction..." "button"
     And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
