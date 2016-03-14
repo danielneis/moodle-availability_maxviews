@@ -129,7 +129,11 @@ class condition extends \core_availability\condition {
         $a->viewslimit = $this->viewslimit;
         $a->viewscount = $viewscount;
 
-        return get_string('eitherdescription', 'availability_maxviews', $a);
+        if ($not) {
+            return get_string('eithernotdescription', 'availability_maxviews', $a);
+        } else {
+            return get_string('eitherdescription', 'availability_maxviews', $a);
+        }
     }
 
     /**

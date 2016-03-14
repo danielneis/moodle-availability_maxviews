@@ -27,4 +27,5 @@ $string['pluginname'] = 'Max Views';
 $string['title'] = 'Maximum Views';
 $string['description'] = 'Prevent access after user view the module a certain number of times.';
 $string['eitherdescription'] = 'you have not reached the limit of {$a->viewslimit} views (you have {$a->viewscount} views)';
+$string['eithernotdescription'] = 'you have reached the limit of {$a->viewslimit} views (you have {$a->viewscount} views)';
 $string['fieldlabel'] = 'Maximum views is less than:';
