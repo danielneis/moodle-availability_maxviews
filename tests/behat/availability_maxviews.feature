@@ -78,7 +78,6 @@ Feature: availability_maxviews
     And I set the following fields to these values:
       | Forum name | Forum 1 |
       | Description  | Test forum description 1 |
-      | First page name | First page |
     And I expand all fieldsets
     And I click on "Add restriction..." "button"
     And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
