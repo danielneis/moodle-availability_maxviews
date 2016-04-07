@@ -19,6 +19,7 @@ Feature: availability_maxviews
     And the following config values are set as admin:
       | enableavailability  | 1 |
 
+  @javascript
   Scenario: Max views must work with Assignment activity
     # Basic setup.
     Given I log in as "teacher1"
@@ -65,6 +66,54 @@ Feature: availability_maxviews
     Then I should not see "Assignment 2" in the "region-main" "region"
 
   @javascript
+  Scenario: Max views must work with Forum activity
+    # Basic setup.
+    Given I log in as "teacher1"
+    And I am on site homepage
+    And I follow "Course 1"
+    And I turn editing mode on
+
+    # Add a Forum with 0 max view allowed.
+    And I add a "Forum" to section "1"
+    And I set the following fields to these values:
+      | Forum name | Forum 1 |
+      | Description  | Test forum description 1 |
+      | First page name | First page |
+    And I expand all fieldsets
+    And I click on "Add restriction..." "button"
+    And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
+    And I click on ".availability-item .availability-eye img" "css_element"
+    And I set the field "maxviews" to "0"
+    And I press "Save and return to course"
+
+    # Add a Forum with 1 max view allowed.
+    And I add a "Forum" to section "1"
+    And I set the following fields to these values:
+      | Forum name | Forum 2 |
+      | Description  | Test forum description 2 |
+      | First page name | First page |
+    And I expand all fieldsets
+    And I click on "Add restriction..." "button"
+    And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
+    And I click on ".availability-item .availability-eye img" "css_element"
+    And I set the field "maxviews" to "1"
+    And I press "Save and return to course"
+
+    # Log back in as student.
+    When I log out
+    And I log in as "student1"
+    And I am on site homepage
+    And I follow "Course 1"
+
+    Then I should not see "Forum 1" in the "region-main" "region"
+    Then I should see "Forum 2" in the "region-main" "region"
+
+    When I follow "Forum 2"
+    And I follow "Course 1"
+
+    Then I should not see "Forum 2" in the "region-main" "region"
+
+  @javascript
   Scenario: Max views must work with Label activity
     # Basic setup.
     Given I log in as "teacher1"
@@ -108,6 +157,53 @@ Feature: availability_maxviews
     When I follow "Course 1"
 
     Then I should not see "Label 2" in the "region-main" "region"
+
+  @javascript
+  Scenario: Max views must work with Lesson activity
+    # Basic setup.
+    Given I log in as "teacher1"
+    And I am on site homepage
+    And I follow "Course 1"
+    And I turn editing mode on
+
+    # Add a Lesson with 0 max view allowed.
+    And I add a "Lesson" to section "1"
+    And I set the following fields to these values:
+      | Name | Lesson 1 |
+      | Description  | Test lesson description 1 |
+    And I expand all fieldsets
+    And I click on "Add restriction..." "button"
+    And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
+    And I click on ".availability-item .availability-eye img" "css_element"
+    And I set the field "maxviews" to "0"
+    And I press "Save and return to course"
+
+    # Add a Lesson with 1 max view allowed.
+    And I add a "Lesson" to section "1"
+    And I set the following fields to these values:
+      | Name | Lesson 2 |
+      | Description  | Test lesson description 2 |
+    And I expand all fieldsets
+    And I click on "Add restriction..." "button"
+    And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
+    And I click on ".availability-item .availability-eye img" "css_element"
+    And I set the field "maxviews" to "1"
+    And I press "Save and return to course"
+
+    # Log back in as student.
+    When I log out
+    And I log in as "student1"
+    And I am on site homepage
+    And I follow "Course 1"
+
+    Then I should not see "Lesson 1" in the "region-main" "region"
+    And I should see "Lesson 2" in the "region-main" "region"
+
+    When I follow "Lesson 2"
+    And I follow "Course 1"
+
+    Then I should not see "Lesson 2" in the "region-main" "region"
+
 
   @javascript
   Scenario: Max views must work with Page activity
@@ -156,52 +252,6 @@ Feature: availability_maxviews
     And I follow "Course 1"
 
     Then I should not see "Page 2" in the "region-main" "region"
-
-  @javascript
-  Scenario: Max views must work with Lesson activity
-    # Basic setup.
-    Given I log in as "teacher1"
-    And I am on site homepage
-    And I follow "Course 1"
-    And I turn editing mode on
-
-    # Add a Lesson with 0 max view allowed.
-    And I add a "Lesson" to section "1"
-    And I set the following fields to these values:
-      | Name | Lesson 1 |
-      | Description  | Test lesson description 1 |
-    And I expand all fieldsets
-    And I click on "Add restriction..." "button"
-    And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
-    And I click on ".availability-item .availability-eye img" "css_element"
-    And I set the field "maxviews" to "0"
-    And I press "Save and return to course"
-
-    # Add a Lesson with 1 max view allowed.
-    And I add a "Lesson" to section "1"
-    And I set the following fields to these values:
-      | Name | Lesson 2 |
-      | Description  | Test lesson description 2 |
-    And I expand all fieldsets
-    And I click on "Add restriction..." "button"
-    And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
-    And I click on ".availability-item .availability-eye img" "css_element"
-    And I set the field "maxviews" to "1"
-    And I press "Save and return to course"
-
-    # Log back in as student.
-    When I log out
-    And I log in as "student1"
-    And I am on site homepage
-    And I follow "Course 1"
-
-    Then I should not see "Lesson 1" in the "region-main" "region"
-    And I should see "Lesson 2" in the "region-main" "region"
-
-    When I follow "Lesson 2"
-    And I follow "Course 1"
-
-    Then I should not see "Lesson 2" in the "region-main" "region"
 
   @javascript
   Scenario: Max views must work with URL resources
