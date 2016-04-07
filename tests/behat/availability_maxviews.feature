@@ -2,7 +2,7 @@
 Feature: availability_maxviews
   In order to control student access to activities
   As a teacher
-  I need to set date conditions which prevent student access
+  I need to set maximum number of views which prevent student access
 
   Background:
     Given the following "courses" exist:
@@ -187,7 +187,7 @@ Feature: availability_maxviews
     And I click on ".availability-item .availability-eye img" "css_element"
     And I set the field "maxviews" to "1"
     And I press "Save and return to course"
-    And I follow "Test lesson name"
+    And I follow "Test lesson 2"
     And I follow "Add a content page"
     And I set the following fields to these values:
       | Page title | First page name |
