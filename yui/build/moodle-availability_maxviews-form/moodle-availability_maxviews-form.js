@@ -39,7 +39,7 @@ M.availability_maxviews.form.getNode = function(json) {
                 // the JSON data in the hidden field in the form, so that it
                 // includes the new value of the checkbox.
                 M.core_availability.form.update();
-                }, '.availability_maxviews input[name=maxviews]');
+        }, '.availability_maxviews input[name=maxviews]');
     }
 
     return node;

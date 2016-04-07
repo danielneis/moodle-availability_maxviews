@@ -90,7 +90,6 @@ Feature: availability_maxviews
     And I set the following fields to these values:
       | Forum name | Forum 2 |
       | Description  | Test forum description 2 |
-      | First page name | First page |
     And I expand all fieldsets
     And I click on "Add restriction..." "button"
     And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
@@ -188,6 +187,14 @@ Feature: availability_maxviews
     And I click on ".availability-item .availability-eye img" "css_element"
     And I set the field "maxviews" to "1"
     And I press "Save and return to course"
+    And I follow "Test lesson name"
+    And I follow "Add a content page"
+    And I set the following fields to these values:
+      | Page title | First page name |
+      | Page contents | First page contents |
+      | id_answer_editor_0 | Next page |
+      | id_jumpto_0 | Next page |
+    And I press "Save page"
 
     # Log back in as student.
     When I log out
