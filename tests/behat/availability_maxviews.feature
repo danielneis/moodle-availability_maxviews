@@ -187,7 +187,7 @@ Feature: availability_maxviews
     And I click on ".availability-item .availability-eye img" "css_element"
     And I set the field "maxviews" to "1"
     And I press "Save and return to course"
-    And I follow "Test lesson 2"
+    And I follow "Lesson 2"
     And I follow "Add a content page"
     And I set the following fields to these values:
       | Page title | First page name |
@@ -209,7 +209,6 @@ Feature: availability_maxviews
     And I follow "Course 1"
 
     Then I should not see "Lesson 2" in the "region-main" "region"
-
 
   @javascript
   Scenario: Max views must work with Page activity
