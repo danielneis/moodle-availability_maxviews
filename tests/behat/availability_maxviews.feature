@@ -66,6 +66,60 @@ Feature: availability_maxviews
     Then I should not see "Assignment 2" in the "region-main" "region"
 
   @javascript
+  Scenario: Max views must work with Book resources
+    # Basic setup.
+    Given I log in as "teacher1"
+    And I am on site homepage
+    And I follow "Course 1"
+    And I turn editing mode on
+
+    # Add a Book with 0 max view allowed
+    When I add a "Book" to section "1"
+    And I set the following fields to these values:
+      | Name | Book 1 |
+      | Description | The Book 1 |
+    And I follow "Book 1"
+    And I set the following fields to these values:
+      | Chapter title | First chapter |
+      | Content | First chapter |
+    And I expand all fieldsets
+    And I click on "Add restriction..." "button"
+    And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
+    And I click on ".availability-item .availability-eye img" "css_element"
+    And I set the field "maxviews" to "0"
+    And I press "Save and return to course"
+
+    # Add a Book with 1 max view allowed
+    When I add a "Book" to section "1"
+    And I set the following fields to these values:
+      | Name | Book 2 |
+      | Description | The Book 2 |
+    And I follow "Book 2"
+    And I set the following fields to these values:
+      | Chapter title | First chapter |
+      | Content | First chapter |
+    And I expand all fieldsets
+    And I click on "Add restriction..." "button"
+    And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
+    And I click on ".availability-item .availability-eye img" "css_element"
+    And I set the field "maxviews" to "0"
+    And I press "Save and return to course"
+
+    # Log back in as student.
+    When I log out
+    And I log in as "student1"
+    And I am on site homepage
+    And I follow "Course 1"
+
+    Then I should not see "Book 1" in the "region-main" "region"
+    And I should see "Book 2" in the "region-main" "region"
+
+    When I follow "Book 2"
+    And I follow "Course 1"
+
+    Then I should not see "Book 2" in the "region-main" "region"
+
+  @javascript
   Scenario: Max views must work with File resources
     # Basic setup.
     Given I log in as "teacher1"
@@ -116,7 +170,6 @@ Feature: availability_maxviews
     And I follow "Course 1"
 
     Then I should not see "File 2" in the "region-main" "region"
-
 
   @javascript
   Scenario: Max views must work with Forum activity
