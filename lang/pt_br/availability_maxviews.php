@@ -22,10 +22,10 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['ajaxerror'] = 'Error contacting server';
+$string['ajaxerror'] = 'Erro ao conectar no servidor';//'Error contacting server'
 $string['pluginname'] = 'Max Views';
 $string['title'] = 'Maximum Views';
-$string['description'] = 'Prevent access after user view the module a certain number of times.';
-$string['eithernotdescription'] = 'you have not reached the limit of {$a->viewslimit} views (you have {$a->viewscount} views)';
-$string['eitherdescription'] = 'you have reached the limit of {$a->viewslimit} views (you have {$a->viewscount} views)';
-$string['fieldlabel'] = 'Maximum views is less than:';
+$string['description'] = 'Bloqueia o acesso à um módulo pelo número de visualizações';
+$string['eithernotdescription'] = 'Você ainda não atingiu o limite de {$a->viewslimit} visualizações (você possui {$a->viewscount} visualizações)';
+$string['eitherdescription'] = 'Você atingiu o limite de {$a->viewslimit} visualizações (você possui {$a->viewscount} visualizações)';
+$string['fieldlabel'] = 'O número máximo de visualizações é menos que:';
