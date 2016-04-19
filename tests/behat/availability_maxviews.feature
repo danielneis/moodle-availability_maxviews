@@ -78,16 +78,18 @@ Feature: availability_maxviews
     And I set the following fields to these values:
       | Name | Book 1 |
       | Description | The Book 1 |
-    And I follow "Book 1"
-    And I set the following fields to these values:
-      | Chapter title | First chapter |
-      | Content | First chapter |
     And I expand all fieldsets
     And I click on "Add restriction..." "button"
     And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
     And I click on ".availability-item .availability-eye img" "css_element"
     And I set the field "maxviews" to "0"
     And I press "Save and return to course"
+    And I follow "Book 1"
+    And I set the following fields to these values:
+      | Chapter title | First chapter |
+      | Content | First chapter |
+    And I press "Save changes"
+    And I follow "Course 1"
 
     # Add a Book with 1 max view allowed
     When I add a "Book" to section "1"
@@ -95,15 +97,17 @@ Feature: availability_maxviews
       | Name | Book 2 |
       | Description | The Book 2 |
     And I follow "Book 2"
-    And I set the following fields to these values:
-      | Chapter title | First chapter |
-      | Content | First chapter |
     And I expand all fieldsets
     And I click on "Add restriction..." "button"
     And I click on "Maximum Views" "button" in the "Add restriction..." "dialogue"
     And I click on ".availability-item .availability-eye img" "css_element"
     And I set the field "maxviews" to "0"
     And I press "Save and return to course"
+    And I follow "Book 2"
+    And I set the following fields to these values:
+      | Chapter title | First chapter |
+      | Content | First chapter |
+    And I press "Save changes"
 
     # Log back in as student.
     When I log out
