@@ -30,7 +30,7 @@ This block is tested with the following plugins and is working:
 * Page
 * URL
 
-This block is also testes with the following plugins that are not working:
+This block is also tested with the following plugins that are not working:
 
 * Book
 * Label
