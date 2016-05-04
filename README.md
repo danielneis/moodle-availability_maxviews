@@ -17,9 +17,26 @@ Install
 Usage
 -----
 
-When you are adding any content to a course, you'll be able to add a "Max views" condition.
-For each of these conditions you can set a max number of views that will be accounted for each user.
-After the user access the content that many times, he/she will not be able to access it anymore.
+* Go to a course, turn edit on, choose a module to add or edit
+* In the 'Availability restrictions' section you'll be able to add a "Max views" condition.
+* This type of condition allows you to set a maximum number of views that will be accounted for each user and after the user access the content that many times, he/she will not be able to access it anymore.
+
+This block is tested with the following plugins and is working:
+
+* Assignment
+* File
+* Forum
+* Lesson
+* Page
+* URL
+
+This block is also tested with the following plugins that are not working:
+
+* Book
+* Label
+* Wiki
+
+If you are interested in using this plugin with the ones that are not working please take a look at #2.
 
 Dev Info
 --------
