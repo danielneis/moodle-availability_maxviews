@@ -36,6 +36,20 @@ defined('MOODLE_INTERNAL') || die();
 class frontend extends \core_availability\frontend {
 
     /**
+     * This plugin was tested with several core plugins and relies on events which has crud = "r".
+     *
+     * There are issues with the Wiki, Label and Book modules.
+     * For details see: https://github.com/danielneis/moodle-availability_maxviews/issues/2
+     *
+     * @param \stdClass $course Course object
+     * @param \cm_info $cm Course-module currently being edited (null if none)
+     * @param \section_info $section Section currently being edited (null if none)
+     */
+    protected function allow_add($course, \cm_info $cm = null, \section_info $section = null) {
+        return (($cm->modname != 'book') && ($cm->modname != 'wiki') && ($cm->modname != 'label'));
+    }
+
+    /**
      * Gets a list of string identifiers (in the plugin's language file) that
      * are required in JavaScript for this plugin. The default returns nothing.
      *
