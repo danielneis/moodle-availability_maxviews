@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2015080400;
+$plugin->version = 2016050500;
 $plugin->requires = 2014111000;
 $plugin->component = 'availability_maxviews';
-$plugin->release = 2;
-$plugin->maturity   = MATURITY_RC;
+$plugin->release = 3;
+$plugin->maturity   = MATURITY_STABLE;
