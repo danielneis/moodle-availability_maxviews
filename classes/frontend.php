@@ -61,18 +61,4 @@ class frontend extends \core_availability\frontend {
     protected function get_javascript_strings() {
         return array('ajaxerror', 'fieldlabel');
     }
-
-    /**
-     * Decides whether this plugin should be available in a given course. The
-     * plugin can do this depending on course or system settings.
-     *
-     * Default returns true.
-     *
-     * @param \stdClass $course Course object
-     * @param \cm_info $cm Course-module currently being edited (null if none)
-     * @param \section_info $section Section currently being edited (null if none)
-     */
-    protected function allow_add($course, \cm_info $cm = null, \section_info $section = null) {
-        return true;
-    }
 }
