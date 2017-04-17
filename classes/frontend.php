@@ -46,7 +46,12 @@ class frontend extends \core_availability\frontend {
      * @param \section_info $section Section currently being edited (null if none)
      */
     protected function allow_add($course, \cm_info $cm = null, \section_info $section = null) {
-        return (($cm->modname != 'book') && ($cm->modname != 'wiki') && ($cm->modname != 'label'));
+        global $add;
+        if ($cm) {
+            return (($cm->modname != 'book') && ($cm->modname != 'wiki') && ($cm->modname != 'label'));
+        } else {
+            return (($add != 'book') && ($add != 'wiki') && ($add != 'label'));
+        }
     }
 
     /**
