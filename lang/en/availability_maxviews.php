@@ -28,4 +28,5 @@ $string['title'] = 'Maximum Views';
 $string['description'] = 'Prevent access after user view the module a certain number of times.';
 $string['eithernotdescription'] = 'you have not reached the limit of {$a->viewslimit} views (you have {$a->viewscount} views)';
 $string['eitherdescription'] = 'you have reached the limit of {$a->viewslimit} views (you have {$a->viewscount} views)';
-$string['fieldlabel'] = 'Maximum views is less than:';
+$string['fieldlabel'] = 'Maximum views:';
+$string['validnumber'] = 'You must add a number higher than 0';

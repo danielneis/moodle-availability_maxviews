@@ -2,7 +2,7 @@
     "name": "danielneis/moodle-availability_maxviews",
     "description": "An availability condition for Moodle that limits the number of views of an activity by users",
     "type": "moodle-availability",
-    "license": "GPL-3.0-or-later",
+    "license": "GPLv3",
     "authors": [
         {
             "name": "Daniel Neis Araujo",
