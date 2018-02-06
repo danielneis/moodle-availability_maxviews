@@ -22,7 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['ajaxerror'] = 'Erro ao conectar no servidor';//'Error contacting server'
+$string['ajaxerror'] = 'Erro ao conectar no servidor';
 $string['pluginname'] = 'Max Views';
 $string['title'] = 'Maximum Views';
 $string['description'] = 'Bloqueia o acesso à um módulo pelo número de visualizações';
