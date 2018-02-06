@@ -35,6 +35,8 @@ defined('MOODLE_INTERNAL') || die();
  */
 class condition extends \core_availability\condition {
 
+    protected $viewslimit;
+
     /**
      * Constructor.
      *
@@ -42,22 +44,14 @@ class condition extends \core_availability\condition {
      * @throws \coding_exception If invalid data structure.
      */
     public function __construct($structure) {
-        if (!isset($structure->viewslimit)) {
-            $this->viewslimit = 0;
-        } else {
-            $this->viewslimit = (int)$structure->viewslimit;
-        }
+        $this->viewslimit = $structure->viewslimit;
     }
 
     /**
      * Create object to be saved representing this condition.
      */
     public function save() {
-        $result = (object)array('type' => 'maxviews');
-        if ($this->viewlimit) {
-            $result->viewslimit = $this->viewslimit;
-        }
-        return $result;
+        return (object)array('type' => 'maxviews', 'viewslimit' => $this->viewslimit);
     }
 
     /**
@@ -69,8 +63,8 @@ class condition extends \core_availability\condition {
      * @param int $viewslimit The limit of views for users
      * @return stdClass Object representing condition
      */
-    public static function get_json($viewslimit = 10) {
-        return (object)array('type' => 'maxviews', 'viewslimit' => $viewslimit);
+    public static function get_json($viewslimit = 5) {
+        return (object)array('type' => 'maxviews', 'viewslimit' => (int)$viewslimit);
     }
 
     /**
