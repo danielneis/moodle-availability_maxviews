@@ -61,7 +61,7 @@ class condition extends \core_availability\condition {
      * by JavaScript code.
      *
      * @param int $viewslimit The limit of views for users
-     * @return stdClass Object representing condition
+     * @return \stdClass Object representing condition
      */
     public static function get_json($viewslimit = 5) {
         return (object)array('type' => 'maxviews', 'viewslimit' => (int)$viewslimit);
@@ -72,14 +72,19 @@ class condition extends \core_availability\condition {
      * according to this availability condition.
      *
      * @param bool $not Set true if we are inverting the condition
-     * @param info $info Item we're checking
+     * @param \core_availability\info $info Item we're checking
      * @param bool $grabthelot Performance hint: if true, caches information
      *   required for all course-modules, to make the front page and similar
      *   pages work more quickly (works only for current user)
      * @param int $userid User ID to check availability for
      * @return bool True if available
      */
-    public function is_available($not, \core_availability\info $info, $grabthelot, $userid) {
+    public function resetviews($cmid, $userid) {
+        global $DB;
+        $views = $DB->get_field('block_resetviews','value', array('cmid'=>$cmid, 'userid'=>$userid));
+        return $views;
+    }
+     public function is_available($not, \core_availability\info $info, $grabthelot, $userid) {
         $logmanager = get_log_manager();
         if (!$readers = $logmanager->get_readers('core\log\sql_reader')) {
             // Should be using 2.8, use old class.
@@ -87,9 +92,11 @@ class condition extends \core_availability\condition {
         }
         $reader = array_pop($readers);
         $context = $info->get_context();
+        
+        $reset= $this->resetviews($context->instanceid, $userid);
         $viewscount = $reader->get_events_select_count('contextid = :context AND userid = :userid AND crud = :crud',
                                                   array('context' => $context->id, 'userid' => $userid, 'crud' => 'r'));
-        $allow = ($viewscount < $this->viewslimit);
+        $allow = ($viewscount < ($this->viewslimit+$reset));
         if ($not) {
             $allow = !$allow;
         }
@@ -102,7 +109,7 @@ class condition extends \core_availability\condition {
      *
      * @param bool $full Set true if this is the 'full information' view
      * @param bool $not Set true if we are inverting the condition
-     * @param info $info Item we're checking
+     * @param \core_availability\info $info Item we're checking
      * @return string Information string (for admin) about all restrictions on
      *   this item
      */
@@ -116,11 +123,11 @@ class condition extends \core_availability\condition {
         }
         $reader = array_pop($readers);
         $context = $info->get_context();
+        $reset= $this->resetviews($context->instanceid, $USER->id);
         $viewscount = $reader->get_events_select_count('contextid = :context AND userid = :userid AND crud = :crud',
                                                   array('context' => $context->id, 'userid' => $USER->id, 'crud' => 'r'));
-
         $a = new \stdclass();
-        $a->viewslimit = $this->viewslimit;
+        $a->viewslimit = ($this->viewslimit+$reset);
         $a->viewscount = $viewscount;
 
         if ($not) {
