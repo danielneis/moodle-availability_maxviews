@@ -68,6 +68,21 @@ class condition extends \core_availability\condition {
     }
 
     /**
+     * Work with resert views block
+     * It get the value added from the block and increse the limit
+     * for certain user
+     * 
+     * @param int $cmid the course module id
+     * @param int $userid User ID
+     * @return int the value added
+     */
+
+    public function resetviews($cmid, $userid) {
+        global $DB;
+        $views = $DB->get_field('block_resetviews','value', array('cmid'=>$cmid, 'userid'=>$userid));
+        return $views;
+    }
+    /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
      *
@@ -79,11 +94,7 @@ class condition extends \core_availability\condition {
      * @param int $userid User ID to check availability for
      * @return bool True if available
      */
-    public function resetviews($cmid, $userid) {
-        global $DB;
-        $views = $DB->get_field('block_resetviews','value', array('cmid'=>$cmid, 'userid'=>$userid));
-        return $views;
-    }
+
      public function is_available($not, \core_availability\info $info, $grabthelot, $userid) {
         $logmanager = get_log_manager();
         if (!$readers = $logmanager->get_readers('core\log\sql_reader')) {
@@ -129,7 +140,8 @@ class condition extends \core_availability\condition {
         $a = new \stdclass();
         $a->viewslimit = ($this->viewslimit+$reset);
         $a->viewscount = $viewscount;
-
+        // $allow = $not ? !$this->allow : $this->allow;
+        // return $allow ? get_string('eithernotdescription', 'availability_maxviews', $a) : get_string('eitherdescription', 'availability_maxviews', $a);
         if ($not) {
             return get_string('eithernotdescription', 'availability_maxviews', $a);
         } else {
