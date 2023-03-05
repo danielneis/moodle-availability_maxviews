@@ -140,8 +140,7 @@ class condition extends \core_availability\condition {
         $a = new \stdclass();
         $a->viewslimit = ($this->viewslimit+$reset);
         $a->viewscount = $viewscount;
-        // $allow = $not ? !$this->allow : $this->allow;
-        // return $allow ? get_string('eithernotdescription', 'availability_maxviews', $a) : get_string('eitherdescription', 'availability_maxviews', $a);
+
         if ($not) {
             return get_string('eithernotdescription', 'availability_maxviews', $a);
         } else {
