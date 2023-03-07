@@ -51,7 +51,6 @@ jobs:
 
       - name: Initialise moodle-plugin-ci
         run: |
-          phpenv config-rm xdebug.ini
           nvm install 8.9
           nvm use 8.9
           cd ../..
