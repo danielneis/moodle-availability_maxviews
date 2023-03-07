@@ -51,6 +51,11 @@ jobs:
 
       - name: Initialise moodle-plugin-ci
         run: |
+          phpenv config-rm xdebug.ini
+          nvm install 8.9
+          nvm use 8.9
+          cd ../..
+          composer selfupdate
           composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^3
           echo $(cd ci/bin; pwd) >> $GITHUB_PATH
           echo $(cd ci/vendor/bin; pwd) >> $GITHUB_PATH
