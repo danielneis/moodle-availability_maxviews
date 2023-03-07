@@ -1,0 +1,22 @@
+name: composer update
+
+on: [push, pull_request,
+  schedule:
+    - cron: '0 0 * * *' #UTC
+]
+jobs:
+  composer_update_job:
+    runs-on: ubuntu-latest
+    name: composer update
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: composer update action
+        uses: kawax/composer-update-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_NAME: fmido88
+          GIT_EMAIL: phun.for.physics@gmail.com
+          APP_SINGLE_BRANCH_POSTFIX: -updated
+          GIT_COMMIT_PREFIX: '[UPDATE] '
+          COMPOSER_PACKAGES: 'typo3/cms-*'
