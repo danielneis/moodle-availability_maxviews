@@ -51,8 +51,6 @@ jobs:
 
       - name: Initialise moodle-plugin-ci
         run: |
-          nvm install 8.9
-          nvm use 8.9
           cd ../..
           composer selfupdate
           composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^3
