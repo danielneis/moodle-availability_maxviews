@@ -1,9 +1,6 @@
 name: composer update
 
-on: [push, pull_request,
-  schedule:
-    - cron: '0 0 * * *' #UTC
-]
+on: [push, pull_request]
 jobs:
   composer_update_job:
     runs-on: ubuntu-latest
