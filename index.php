@@ -15,17 +15,35 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version info.
+ * Max views overrides.
  *
  * @package availability_maxviews
- * @copyright 2015 Daniel Neis Araujo
+ * @copyright 2023 Daniel Neis Araujo
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+require_once('../../../config.php');
 
-$plugin->version = 2023041201;
-$plugin->requires = 2014111000;
-$plugin->component = 'availability_maxviews';
-$plugin->release = 6;
-$plugin->maturity   = MATURITY_STABLE;
+$courseid = required_param('courseid', PARAM_INT);
+
+require_login($courseid);
+
+$ctx = context_system::instance();
+require_capability('moodle/course:manageactivities', $ctx);
+
+$str = get_string('overrides', 'availability_maxviews');
+
+$url = new moodle_url('/availability/condition/maxviews/index.php');
+
+$PAGE->set_context($ctx);
+$PAGE->set_url($url);
+$PAGE->set_title($str . ' - ' . $SITE->fullname);
+$PAGE->set_heading($str);
+
+$output = $PAGE->get_renderer('availability_maxviews');
+
+$index = new \availability_maxviews\output\index($courseid);
+
+echo $output->header(),
+     $output->render($index),
+     $output->footer();

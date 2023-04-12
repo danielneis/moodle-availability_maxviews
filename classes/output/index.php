@@ -1,0 +1,67 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace availability_maxviews\output;
+defined('MOODLE_INTERNAL') || die();
+
+use moodle_url;
+use renderable;
+use templatable;
+use renderer_base;
+
+/**
+ * Index renderable class.
+ *
+ * @package   availability_maxviews
+ * @copyright 2023 Daniel Neis Araujo <daniel@adapta.online>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class index implements renderable, templatable {
+
+    public $reports = [];
+
+    /**
+     * Constructor.
+     */
+    public function __construct($courseid) {
+        $this->courseid = $courseid;
+    }
+
+    public function export_for_template(renderer_base $output) {
+        global $DB;
+        $userfieldsapi = \core_user\fields::for_name();
+        $usernamefields = $userfieldsapi->get_sql('u', false, '', '', false)->selects;
+        $sql = 'SELECT m.*, ' . $usernamefields . '
+                  FROM {availability_maxviews} m
+                  JOIN {user} u
+                    ON u.id = m.userid
+                 WHERE m.courseid = :courseid';
+        $overrides = $DB->get_records_sql($sql, ['courseid' => $this->courseid]);
+        $modinfo = get_fast_modinfo($this->courseid);
+        foreach ($overrides as $key => $o) {
+            $params = ['courseid' => $this->courseid, 'id' => $o->id];
+            $overrideurl = new moodle_url('/availability/condition/maxviews/override.php', $params);
+            $overrides[$key]->overrideurl = $overrideurl->out(false);
+            $overrides[$key]->coursemodule = $modinfo->cms[$o->cmid]->get_formatted_name();
+            $overrides[$key]->userfullname = fullname($o);
+        }
+        return (object)[
+            'overrides' => array_values($overrides),
+            'hasoverrides' => !empty($overrides),
+            'newoverrideurl' => (new moodle_url('/availability/condition/maxviews/override.php', ['courseid' => $this->courseid]))->out(false),
+        ];
+    }
+}

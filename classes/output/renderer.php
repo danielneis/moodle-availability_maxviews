@@ -14,18 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Version info.
- *
- * @package availability_maxviews
- * @copyright 2015 Daniel Neis Araujo
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
+namespace availability_maxviews\output;
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2023041201;
-$plugin->requires = 2014111000;
-$plugin->component = 'availability_maxviews';
-$plugin->release = 6;
-$plugin->maturity   = MATURITY_STABLE;
+use plugin_renderer_base;
+use renderable;
+
+/**
+ * Availability Max views renderer class.
+ *
+ * @package    availability_maxviews
+ * @copyright  2023 Daniel Neis Araujo <daniel@adapta.online>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class renderer extends plugin_renderer_base {
+}

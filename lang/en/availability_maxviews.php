@@ -23,10 +23,21 @@
  */
 
 $string['ajaxerror'] = 'Error contacting server';
-$string['pluginname'] = 'Max Views';
-$string['title'] = 'Maximum Views';
+$string['coursemodule'] = 'Course module';
 $string['description'] = 'Prevent access after user view the module a certain number of times.';
+$string['editingoverride'] = 'Editing override';
 $string['eithernotdescription'] = 'you have not reached the limit of {$a->viewslimit} views (you have {$a->viewscount} views)';
 $string['eitherdescription'] = 'you have reached the limit of {$a->viewslimit} views (you have {$a->viewscount} views)';
 $string['fieldlabel'] = 'Maximum views:';
+$string['lastreset'] = 'Last reset';
+$string['maxviews'] = 'Maximum views';
+$string['newoverride'] = 'New override';
+$string['nooverrides'] = 'No overrides';
+$string['overrideadded'] = 'Override added';
+$string['overrides'] = 'Overrides';
+$string['overrideupdated'] = 'Override updated';
+$string['participant'] = 'Participant';
+$string['pluginname'] = 'Max Views';
+$string['resetviews'] = 'Reset views';
+$string['title'] = 'Maximum Views';
 $string['validnumber'] = 'You must add a number higher than 0';
