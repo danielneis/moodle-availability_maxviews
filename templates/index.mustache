@@ -43,7 +43,10 @@
               <td>{{userfullname}}</td>
               <td>{{maxviews}}</td>
               <td>{{#lastreset}}{{#userdate}} {{lastreset}} , {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}{{/lastreset}}</td>
-              <td><a href="{{{overrideurl}}}" class="btn btn-secondary">{{#str}} edit {{/str}}</a></td>
+              <td>
+              <a href="{{{overrideurl}}}" class="btn btn-secondary">{{#str}} edit {{/str}}</a>
+              <a href="{{{deleteoverrideurl}}}" class="btn btn-secondary">{{#str}} delete {{/str}}</a>
+              </td>
             </tr>
         {{/overrides}}
     </tbody>

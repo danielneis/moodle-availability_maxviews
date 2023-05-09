@@ -55,6 +55,9 @@ class index implements renderable, templatable {
             $params = ['courseid' => $this->courseid, 'id' => $o->id];
             $overrideurl = new moodle_url('/availability/condition/maxviews/override.php', $params);
             $overrides[$key]->overrideurl = $overrideurl->out(false);
+            $params['sesskey'] = sesskey();
+            $deleteoverrideurl = new moodle_url('/availability/condition/maxviews/delete.php', $params);
+            $overrides[$key]->deleteoverrideurl = $deleteoverrideurl->out(false);
             $overrides[$key]->coursemodule = $modinfo->cms[$o->cmid]->get_formatted_name();
             $overrides[$key]->userfullname = fullname($o);
         }

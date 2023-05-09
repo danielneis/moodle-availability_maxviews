@@ -23,6 +23,7 @@
  */
 
 $string['ajaxerror'] = 'Error contacting server';
+$string['confirmdeleteoverride'] = 'Are you sure you want to delete the override for {$a}? This action cannot be undone.';
 $string['coursemodule'] = 'Course module';
 $string['description'] = 'Prevent access after user view the module a certain number of times.';
 $string['editingoverride'] = 'Editing override';
@@ -34,6 +35,7 @@ $string['maxviews'] = 'Maximum views';
 $string['newoverride'] = 'New override';
 $string['nooverrides'] = 'No overrides';
 $string['overrideadded'] = 'Override added';
+$string['overridedeleted'] = 'Override deleted';
 $string['overrides'] = 'Overrides';
 $string['overrideupdated'] = 'Override updated';
 $string['participant'] = 'Participant';
