@@ -58,6 +58,7 @@ if ($form->is_cancelled()) {
         $record = (object)[
             'id' => $id,
             'maxviews' => $data->maxviews,
+            'userid' => $data->userid,
         ];
         if (!empty($data->resetviews)) {
             $record->lastreset = time();

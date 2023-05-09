@@ -80,6 +80,8 @@ class condition extends \core_availability\condition {
      * @return bool True if available
      */
     public function is_available($not, \core_availability\info $info, $grabthelot, $userid) {
+        global $DB;
+
         $logmanager = get_log_manager();
         if (!$readers = $logmanager->get_readers('core\log\sql_reader')) {
             // Should be using 2.8, use old class.
@@ -87,9 +89,21 @@ class condition extends \core_availability\condition {
         }
         $reader = array_pop($readers);
         $context = $info->get_context();
-        $viewscount = $reader->get_events_select_count('contextid = :context AND userid = :userid AND crud = :crud',
-                                                  array('context' => $context->id, 'userid' => $userid, 'crud' => 'r'));
-        $allow = ($viewscount < $this->viewslimit);
+        $where = 'contextid = :context AND userid = :userid AND crud = :crud';
+        $params = ['context' => $context->id, 'userid' => $userid, 'crud' => 'r'];
+
+        $viewslimit = $this->viewslimit;
+        if ($override = $DB->get_record('availability_maxviews', ['cmid' => $info->get_course_module()->id, 'userid' => $userid])) {
+            if (!empty($override->lastreset)) {
+                $where .= ' AND timecreated >= :lastreset';
+                $params['lastreset'] = $override->lastreset;
+            }
+            if (!empty($override->maxviews)) {
+                $viewslimit = $override->maxviews;
+            }
+        }
+        $viewscount = $reader->get_events_select_count($where, $params);
+        $allow = ($viewscount < $viewslimit);
         if ($not) {
             $allow = !$allow;
         }
@@ -107,7 +121,7 @@ class condition extends \core_availability\condition {
      *   this item
      */
     public function get_description($full, $not, \core_availability\info $info) {
-        global $USER;
+        global $USER, $DB;
 
         $logmanager = get_log_manager();
         if (!$readers = $logmanager->get_readers('core\log\sql_reader')) {
@@ -116,11 +130,24 @@ class condition extends \core_availability\condition {
         }
         $reader = array_pop($readers);
         $context = $info->get_context();
-        $viewscount = $reader->get_events_select_count('contextid = :context AND userid = :userid AND crud = :crud',
-                                                  array('context' => $context->id, 'userid' => $USER->id, 'crud' => 'r'));
+
+        $where = 'contextid = :context AND userid = :userid AND crud = :crud';
+        $params = ['context' => $context->id, 'userid' => $USER->id, 'crud' => 'r'];
+
+        $viewslimit = $this->viewslimit;
+        if ($override = $DB->get_record('availability_maxviews', ['cmid' => $info->get_course_module()->id, 'userid' => $USER->id])) {
+            if (!empty($override->lastreset)) {
+                $where .= ' AND timecreated >= :lastreset';
+                $params['lastreset'] = $override->lastreset;
+            }
+            if (!empty($override->maxviews)) {
+                $viewslimit = $override->maxviews;
+            }
+        }
+        $viewscount = $reader->get_events_select_count($where, $params);
 
         $a = new \stdclass();
-        $a->viewslimit = $this->viewslimit;
+        $a->viewslimit = $viewslimit;
         $a->viewscount = $viewscount;
 
         if ($not) {
