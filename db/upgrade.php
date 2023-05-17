@@ -57,4 +57,5 @@ function xmldb_availability_maxviews_upgrade($oldversion) {
         // Maxviews savepoint reached.
         upgrade_plugin_savepoint(true, 2023041201, 'availability', 'maxviews');
     }
+    return true;
 }
