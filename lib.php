@@ -22,12 +22,10 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 function availability_maxviews_extend_navigation_course(navigation_node $navigation, stdClass $course, context_course $context) {
     global $PAGE;
 
-    if (has_capability('moodle/course:manageactivities', $context)) {
+    if (has_capability('availability/maxviews:override', $context)) {
                 // Find the course settings node using the 'courseadmin' key.
 
         $url = new moodle_url('/availability/condition/maxviews/index.php', ['courseid' => $course->id]);

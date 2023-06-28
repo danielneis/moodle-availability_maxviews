@@ -24,8 +24,6 @@
 
 namespace availability_maxviews;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * maxviews condition.
  *
@@ -81,6 +79,8 @@ class condition extends \core_availability\condition {
      */
     public function is_available($not, \core_availability\info $info, $grabthelot, $userid) {
         global $DB;
+        // Check the type of overriding.
+        $type = get_config('availability_maxviews', 'overridetype');
 
         $logmanager = get_log_manager();
         if (!$readers = $logmanager->get_readers('core\log\sql_reader')) {
@@ -94,12 +94,19 @@ class condition extends \core_availability\condition {
 
         $viewslimit = $this->viewslimit;
         if ($override = $DB->get_record('availability_maxviews', ['cmid' => $info->get_course_module()->id, 'userid' => $userid])) {
-            if (!empty($override->lastreset)) {
+            // To make sure that it is numeric integer value.
+            $lastreset = intval($override->lastreset);
+            if (!empty($lastreset)) {
                 $where .= ' AND timecreated >= :lastreset';
                 $params['lastreset'] = $override->lastreset;
             }
+            // If there is override, set the new value according to the type of override.
             if (!empty($override->maxviews)) {
-                $viewslimit = $override->maxviews;
+                if ($type == 'normal') {
+                    $viewslimit = $override->maxviews;
+                } else if ($type == 'add') {
+                    $viewslimit += $override->maxviews;
+                }
             }
         }
         $viewscount = $reader->get_events_select_count($where, $params);
@@ -122,7 +129,8 @@ class condition extends \core_availability\condition {
      */
     public function get_description($full, $not, \core_availability\info $info) {
         global $USER, $DB;
-
+        // Check the type of overriding.
+        $type = get_config('availability_maxviews', 'overridetype');
         $logmanager = get_log_manager();
         if (!$readers = $logmanager->get_readers('core\log\sql_reader')) {
             // Should be using 2.8, use old class.
@@ -135,13 +143,22 @@ class condition extends \core_availability\condition {
         $params = ['context' => $context->id, 'userid' => $USER->id, 'crud' => 'r'];
 
         $viewslimit = $this->viewslimit;
-        if ($override = $DB->get_record('availability_maxviews', ['cmid' => $info->get_course_module()->id, 'userid' => $USER->id])) {
-            if (!empty($override->lastreset)) {
+        if ($override = $DB->get_record('availability_maxviews',
+                            ['cmid' => $info->get_course_module()->id,
+                            'userid' => $USER->id])) {
+            // To make sure that it is numeric integer value.
+            $lastreset = intval($override->lastreset);
+            if (!empty($lastreset)) {
                 $where .= ' AND timecreated >= :lastreset';
-                $params['lastreset'] = $override->lastreset;
+                $params['lastreset'] = $lastreset;
             }
+            // If there is override, set the new value according to the type of override.
             if (!empty($override->maxviews)) {
-                $viewslimit = $override->maxviews;
+                if ($type == 'normal') {
+                    $viewslimit = $override->maxviews;
+                } else if ($type == 'add') {
+                    $viewslimit += $override->maxviews;
+                }
             }
         }
         $viewscount = $reader->get_events_select_count($where, $params);

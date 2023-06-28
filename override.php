@@ -23,14 +23,17 @@
  */
 
 require_once('../../../config.php');
+require_once(__DIR__.'/classes/event/maxviews_override_updated.php');
+require_once(__DIR__.'/classes/event/maxviews_override_created.php');
 
 $courseid = required_param('courseid', PARAM_INT);
 $id = optional_param('id', 0, PARAM_INT);
+$context = context_course::instance($courseid);
 
 require_login($courseid);
 
 $ctx = context_system::instance();
-require_capability('moodle/course:manageactivities', $ctx);
+require_capability('availability/maxviews:override', $context);
 
 if ($id) {
     $str = get_string('newoverride', 'availability_maxviews');
@@ -46,7 +49,9 @@ $PAGE->set_heading($str);
 
 $form = new \availability_maxviews\form\override($url, ['courseid' => $courseid]);
 if ($id) {
-    $form->set_data($DB->get_record('availability_maxviews', ['id' => $id]));
+    $recordold = $DB->get_record('availability_maxviews', ['id' => $id]);
+    $recordold->userids[] = $recordold->userid;
+    $form->set_data($recordold);
 } else {
     $form->set_data(['courseid' => $courseid]);
 }
@@ -54,29 +59,94 @@ if ($id) {
 if ($form->is_cancelled()) {
     redirect(new moodle_url('/availability/condition/maxviews/index.php', ['courseid' => $courseid]));
 } else if ($data = $form->get_data()) {
+
+    // Initialize the event data to trigger.
+    $eventarray = [
+        'context' => $context,
+        'objectid' => $id,
+        'userid' => $USER->id,
+        'courseid' => $courseid,
+        'other' => ['cmid' => $data->cmid],
+        ];
+
     if ($id) {
+        $key = array_key_first($data->userids);
+        $userid = $data->userids[$key];
+
         $record = (object)[
             'id' => $id,
             'maxviews' => $data->maxviews,
-            'userid' => $data->userid,
+            'userid' => $userid,
+            'overriderid' => $USER->id,
+            'timeupdated' => time()
         ];
+
         if (!empty($data->resetviews)) {
             $record->lastreset = time();
+            $eventarray['other']['reset'] = true;
+        } else {
+            $eventarray['other']['reset'] = false;
         }
 
         $DB->update_record('availability_maxviews', $record);
+        $eventarray['relateduserid'] = $userid;
+        $eventarray['other']['type'] = 'updated';
+
         $msg = get_string('overrideupdated', 'availability_maxviews');
     } else {
-        $record = (object)[
-            'courseid' => $data->courseid,
-            'cmid' => $data->cmid,
-            'userid' => $data->userid,
-            'maxviews' => $data->maxviews,
-            'lastreset' => empty($data->resetviews) ? 0 : time(),
-        ];
-        $DB->insert_record('availability_maxviews', $record);
+        // Modifying for multiple users change.
+        foreach ($data->userids as $userid) {
+            $record = [
+                'courseid' => $data->courseid,
+                'cmid' => $data->cmid,
+                'userid' => $userid,
+            ];
+            $newrecord = [
+                'maxviews' => $data->maxviews,
+                'overriderid' => $USER->id,
+            ];
+            if (!empty($data->resetviews)) {
+                $newrecord['lastreset'] = time();
+                $eventarray['other']['reset'] = true;
+            } else {
+                $newrecord['lastreset'] = 0;
+                $eventarray['other']['reset'] = false;
+            }
+            $eventarray['relateduserid'] = $userid;
+            // Prevent duplication of records for same user which makes a conflict at error when calling get_record() later.
+            if ($oldrecord = $DB->get_record('availability_maxviews', $record)) {
+                $newrecord = array_merge($newrecord,
+                                ['id' => $oldrecord->id,
+                                'timeupdated' => time(),
+                                ]);
+                $recordobject = (object)$newrecord;
+                // Adding the old maxviews.
+                $recordobject->maxviews += $oldrecord->maxviews;
+                // Check if there is old reset first.
+                $recordobject->lastreset = max($recordobject->lastreset, $oldrecord->lastreset);
+                $DB->update_record('availability_maxviews', $recordobject);
+
+                $eventarray['other']['type'] = 'updated';
+
+            } else {
+                $newrecord['timecreated'] = time();
+                $recordobject = (object)array_merge($record, $newrecord);
+                $DB->insert_record('availability_maxviews', $recordobject);
+
+                $eventarray['other']['type'] = 'created';
+
+            }
+        }
         $msg = get_string('overrideadded', 'availability_maxviews');
     }
+    // Check the type of the event.
+    if ($eventarray['other']['type'] == 'updated') {
+        $event = availability_maxviews\event\maxviews_override_updated::create($eventarray);
+    } else if ($eventarray['other']['type'] == 'created') {
+        $event = availability_maxviews\event\maxviews_override_created::create($eventarray);
+    }
+    // Trigger the event.
+    $event->trigger();
     redirect(new moodle_url('/availability/condition/maxviews/index.php', ['courseid' => $courseid]), $msg);
 } else {
     echo $OUTPUT->header(),

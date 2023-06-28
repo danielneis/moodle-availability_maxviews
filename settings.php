@@ -14,17 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace availability_maxviews\output;
-
-use plugin_renderer_base;
-use renderable;
-
 /**
- * Availability Max views renderer class.
+ * Setting page for availability maxviews
  *
- * @package    availability_maxviews
- * @copyright  2023 Daniel Neis Araujo <daniel@adapta.online>
+ * @package    availability_maxviews.
+ * @copyright  Mo Farouk
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class renderer extends plugin_renderer_base {
+
+defined('MOODLE_INTERNAL') || die;
+
+if ($ADMIN->fulltree) {
+
+    $settings->add(new admin_setting_heading('availability_maxviews/settings', get_string('settingpage', 'availability_maxviews'), ''));
+
+    $options = [
+        'normal' => get_string('normal_override', 'availability_maxviews'),
+        'add' => get_string('addition_override', 'availability_maxviews'),
+    ];
+    $settings->add(new admin_setting_configselect('availability_maxviews/overridetype',
+    get_string('overridetype', 'availability_maxviews'),
+    get_string('overridetype_desc', 'availability_maxviews'),
+    'normal',
+    $options));
+
 }
+

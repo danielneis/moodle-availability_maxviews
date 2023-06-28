@@ -24,8 +24,6 @@
 
 namespace availability_maxviews;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Front-end class.
  *

@@ -16,6 +16,8 @@
 
 namespace availability_maxviews\form;
 
+defined('MOODLE_INTERNAL') || die;
+
 require_once($CFG->libdir . '/formslib.php');
 
 use moodleform;
@@ -30,6 +32,8 @@ use moodleform;
 class override extends moodleform {
 
     public function definition() {
+        global $DB;
+        $type = get_config('availability_maxviews', 'overridetype');
         $mform = $this->_form;
 
         $mform->addElement('hidden', 'id');
@@ -40,10 +44,19 @@ class override extends moodleform {
 
         $modinfo = get_fast_modinfo($this->_customdata['courseid']);
         $options = ['' => ''];
+
         foreach ($modinfo->cms as $i) {
+            // Filter course modules by that only has maxviews conditions.
+            $getviewslimit = $DB->get_field_select('course_modules', 'availability' ,
+            "`availability` LIKE '%maxviews%' AND `id` = '$i->id'", ['id' => $i->id], IGNORE_MISSING);
+            if ($getviewslimit == null) {
+                continue;
+            }
+            // Adding the filtered modules to the options array.
             $options[$i->id] = $i->name;
         }
-        $autocomplete = $mform->addElement(
+
+        $mform->addElement(
             'autocomplete',
             'cmid',
             get_string('coursemodule', 'availability_maxviews'),
@@ -51,22 +64,61 @@ class override extends moodleform {
             [],
         );
         $mform->addRule('cmid', null, 'required', null, 'client');
+        $mform->addHelpButton('cmid', 'coursemodule', 'availability_maxviews');
 
         $options = ['' => ''];
         $users = get_enrolled_users(\context_course::instance($this->_customdata['courseid']));
-        foreach ($users as $u) {
-            $options[$u->id] = fullname($u);
+
+        // Adding the user's identity fields to make it easier to serch for many users.
+        $context = \context_course::instance($this->_customdata['courseid']);
+        foreach ($users as $user) {
+            // Filter users with those with restrictions only.
+            if (has_capability('moodle/course:ignoreavailabilityrestrictions', $context, $user)) {
+                continue;
+            }
+            $userfields = \core_user\fields::get_identity_fields($context, true);
+
+            $userdata = [];
+            $userfullname = fullname($user);
+            foreach ($userfields as $userfield) {
+                if (isset($user->$userfield)) {
+                    $useridentity = $user->$userfield;
+                } else {
+                    // Extract the name of the user field.
+                    $fieldname = str_replace('profile_field_', '', $userfield);
+                    // Get the ID of the custom profile field.
+                    $fieldid = $DB->get_field('user_info_field', 'id', array('shortname' => $fieldname));
+                    // Get the data from the user_info_data table using the field ID and user ID.
+                    $useridentity = $DB->get_field('user_info_data', 'data', array('userid' => $user->id, 'fieldid' => $fieldid));
+                }
+                if ($useridentity == '') {
+                    continue;
+                }
+                $userdata[] = $useridentity;
+            }
+            $output = $userfullname.' ('.implode(', ', $userdata).')';
+            $options[$user->id] = $output;
         }
-        $autocomplete = $mform->addElement(
+
+        $mform->addElement(
             'autocomplete',
-            'userid',
+            'userids',
             get_string('participant', 'availability_maxviews'),
             $options,
+            ['multiple' => true]
         );
-        $mform->addRule('userid', null, 'required', null, 'client');
+        $mform->addRule('userids', null, 'required', null, 'client');
+        $mform->addHelpButton('userids', 'participant', 'availability_maxviews');
 
-        $mform->addElement('text', 'maxviews', get_string('maxviews', 'availability_maxviews'));
-        $mform->setType('maxviews', PARAM_TEXT);
+        if ($type === 'normal') { // Normal override.
+            $mform->addElement('text', 'maxviews', get_string('maxviews', 'availability_maxviews'));
+            $mform->setType('maxviews', PARAM_INT);
+            $mform->addHelpButton('maxviews', 'maxviews', 'availability_maxviews');
+        } else { // Additional maxviews.
+            $mform->addElement('text', 'maxviews', get_string('maxviews_add', 'availability_maxviews'));
+            $mform->setType('maxviews', PARAM_INT);
+            $mform->addHelpButton('maxviews', 'maxviews_add', 'availability_maxviews');
+        }
 
         $mform->addElement('checkbox', 'resetviews', get_string('resetviews', 'availability_maxviews'));
         $mform->setType('resetviews', PARAM_INT);

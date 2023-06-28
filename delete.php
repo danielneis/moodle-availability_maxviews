@@ -23,23 +23,43 @@
  */
 
 require_once('../../../config.php');
+require_once(__DIR__.'/classes/event/maxviews_override_deleted.php');
 
 $id = required_param('id', PARAM_INT);
 $courseid = required_param('courseid', PARAM_INT);
 $confirm = optional_param('confirm', 0, PARAM_BOOL);
 
 require_login();
-
+$context = context_course::instance($courseid);
 $ctx = context_system::instance();
-require_capability('moodle/course:manageactivities', $ctx);
+require_capability('availability/maxviews:override', $context);
 
 if (confirm_sesskey()) {
+    $override = $DB->get_record('availability_maxviews', ['id' => $id]);
+
     if ($confirm) {
+        // Initialize the event data to trigger before deleting the record.
+        $eventarray = [
+            'context' => $context,
+            'objectid' => $id,
+            'userid' => $USER->id,
+            'relateduserid' => $override->userid,
+            'courseid' => $courseid,
+            'other' => ['cmid' => $override->cmid,
+                        'type' => 'deleted',
+                        'reset' => false,
+                        ],
+            ];
+
         $DB->delete_records('availability_maxviews', ['id' => $id]);
+        // Define the event.
+        $event = availability_maxviews\event\maxviews_override_deleted::create($eventarray);
+        // Trigger the event.
+        $event->trigger();
         $url = new moodle_url('/availability/condition/maxviews/index.php', ['courseid' => $courseid]);
         redirect($url, get_string('overridedeleted', 'availability_maxviews'));
     } else {
-        $override = $DB->get_record('availability_maxviews', ['id' => $id]);
+
         $user = $DB->get_record('user', ['id' => $override->userid], 'id,firstname,lastname');
 
         $PAGE->set_context(context_system::instance());
@@ -56,7 +76,7 @@ if (confirm_sesskey()) {
         $buttoncontinue = new single_button($url, get_string('yes'), 'get');
 
         $url = new moodle_url('/availability/condition/maxviews/index.php', $optionsno);
-        $buttoncancel   = new single_button($url, get_string('no'), 'get');
+        $buttoncancel = new single_button($url, get_string('no'), 'get');
 
         $message = get_string('confirmdeleteoverride', 'availability_maxviews', $user->firstname . ' ' . $user->lastname);
 
