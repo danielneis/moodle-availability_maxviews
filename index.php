@@ -28,14 +28,13 @@ $courseid = required_param('courseid', PARAM_INT);
 
 require_login($courseid);
 $context = context_course::instance($courseid);
-$ctx = context_system::instance();
 require_capability('availability/maxviews:override', $context);
 
 $str = get_string('overrides', 'availability_maxviews');
 
 $url = new moodle_url('/availability/condition/maxviews/index.php', ['courseid' => $courseid]);
 
-$PAGE->set_context($ctx);
+$PAGE->set_context($context);
 $PAGE->set_url($url);
 $PAGE->set_title($str . ' - ' . $SITE->fullname);
 $PAGE->set_heading($str);

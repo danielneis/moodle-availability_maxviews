@@ -47,11 +47,17 @@ class override extends moodleform {
 
         foreach ($modinfo->cms as $i) {
             // Filter course modules by that only has maxviews conditions.
-            $getviewslimit = $DB->get_field_select('course_modules', 'availability' ,
-            "`availability` LIKE '%maxviews%' AND `id` = '$i->id'", ['id' => $i->id], IGNORE_MISSING);
-            if ($getviewslimit == null) {
+            if (!empty($i->availability)) {
+                $av = json_decode($i->availability);
+                foreach ($av->c as $condition) {
+                    if ($condition->type !== 'maxviews') {
+                        continue;
+                    }
+                }
+            } else {
                 continue;
             }
+
             // Adding the filtered modules to the options array.
             $options[$i->id] = $i->name;
         }
@@ -111,14 +117,13 @@ class override extends moodleform {
         $mform->addHelpButton('userids', 'participant', 'availability_maxviews');
 
         if ($type === 'normal') { // Normal override.
-            $mform->addElement('text', 'maxviews', get_string('maxviews', 'availability_maxviews'));
-            $mform->setType('maxviews', PARAM_INT);
-            $mform->addHelpButton('maxviews', 'maxviews', 'availability_maxviews');
+            $identifier = 'maxviews';
         } else { // Additional maxviews.
-            $mform->addElement('text', 'maxviews', get_string('maxviews_add', 'availability_maxviews'));
-            $mform->setType('maxviews', PARAM_INT);
-            $mform->addHelpButton('maxviews', 'maxviews_add', 'availability_maxviews');
+            $identifier = 'maxviews_add';
         }
+        $mform->addElement('text', 'maxviews', get_string($identifier, 'availability_maxviews'));
+        $mform->setType('maxviews', PARAM_INT);
+        $mform->addHelpButton('maxviews', $identifier, 'availability_maxviews');
 
         $mform->addElement('checkbox', 'resetviews', get_string('resetviews', 'availability_maxviews'));
         $mform->setType('resetviews', PARAM_INT);

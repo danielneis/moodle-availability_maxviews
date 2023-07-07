@@ -62,21 +62,21 @@ function xmldb_availability_maxviews_upgrade($oldversion) {
         $field = new xmldb_field('overriderid', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL, null, 0, 'userid');
         $field->setComment('The id of the user who did the overriding process.');
 
-        // Conditionally lunch add field.
+        // Conditionally launch add field.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
         // Define the new field for timecreated.
         $field = new xmldb_field('timecreated', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL, null, 0, 'maxviews');
-        // Conditionally lunch add field.
+        // Conditionally launch add field.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
         // Define the new field for timemodified.
         $field = new xmldb_field('timeupdated', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL, null, 0, 'timecreated');
-        // Conditionally lunch add field.
+        // Conditionally launch add field.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }

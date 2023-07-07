@@ -30,6 +30,8 @@ use renderer_base;
  */
 class index implements renderable, templatable {
 
+    public $courseid;
+
     public $reports = [];
 
     /**
@@ -66,17 +68,17 @@ class index implements renderable, templatable {
             $overrides[$key]->userfullname = fullname($o);
 
             // The user that did the override process.
-            $modifer = \core_user::get_user($o->overriderid);
-            $overrides[$key]->modifier = fullname($modifer);
+            $overrider = \core_user::get_user($o->overriderid);
+            $overrides[$key]->overrider = fullname($overrider);
             $overrides[$key]->date = max($o->timecreated, $o->timeupdated);
         }
 
+        $newoverrideurl = new moodle_url('/availability/condition/maxviews/override.php', ['courseid' => $this->courseid]);
         return (object)[
             'overrides' => array_values($overrides),
             'typeadd' => $typeadd,
             'hasoverrides' => !empty($overrides),
-            'newoverrideurl' => (new moodle_url('/availability/condition/maxviews/override.php',
-                                                    ['courseid' => $this->courseid]))->out(false),
+            'newoverrideurl' => $newoverrideurl->out(false),
         ];
     }
 }

@@ -23,7 +23,6 @@
  */
 
 require_once('../../../config.php');
-require_once(__DIR__.'/classes/event/maxviews_override_deleted.php');
 
 $id = required_param('id', PARAM_INT);
 $courseid = required_param('courseid', PARAM_INT);
@@ -31,7 +30,6 @@ $confirm = optional_param('confirm', 0, PARAM_BOOL);
 
 require_login();
 $context = context_course::instance($courseid);
-$ctx = context_system::instance();
 require_capability('availability/maxviews:override', $context);
 
 if (confirm_sesskey()) {
@@ -53,7 +51,7 @@ if (confirm_sesskey()) {
 
         $DB->delete_records('availability_maxviews', ['id' => $id]);
         // Define the event.
-        $event = availability_maxviews\event\maxviews_override_deleted::create($eventarray);
+        $event = \availability_maxviews\event\maxviews_override_deleted::create($eventarray);
         // Trigger the event.
         $event->trigger();
         $url = new moodle_url('/availability/condition/maxviews/index.php', ['courseid' => $courseid]);
@@ -62,7 +60,7 @@ if (confirm_sesskey()) {
 
         $user = $DB->get_record('user', ['id' => $override->userid], 'id,firstname,lastname');
 
-        $PAGE->set_context(context_system::instance());
+        $PAGE->set_context($context);
         $PAGE->set_pagelayout('standard');
         $PAGE->set_url(new moodle_url('/availability/condition/maxviews/delete.php'));
         $PAGE->set_title(new lang_string('confirm'));
