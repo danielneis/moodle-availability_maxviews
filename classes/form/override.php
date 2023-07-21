@@ -75,14 +75,15 @@ class override extends moodleform {
         $options = ['' => ''];
         $users = get_enrolled_users(\context_course::instance($this->_customdata['courseid']));
 
-        // Adding the user's identity fields to make it easier to serch for many users.
+        // Adding the user's identity fields to make it easier to search for many users.
         $context = \context_course::instance($this->_customdata['courseid']);
+        $userfields = \core_user\fields::get_identity_fields($context, true);
+
         foreach ($users as $user) {
             // Filter users with those with restrictions only.
             if (has_capability('moodle/course:ignoreavailabilityrestrictions', $context, $user)) {
                 continue;
             }
-            $userfields = \core_user\fields::get_identity_fields($context, true);
 
             $userdata = [];
             $userfullname = fullname($user);
@@ -97,9 +98,11 @@ class override extends moodleform {
                     // Get the data from the user_info_data table using the field ID and user ID.
                     $useridentity = $DB->get_field('user_info_data', 'data', array('userid' => $user->id, 'fieldid' => $fieldid));
                 }
-                if ($useridentity == '') {
+
+                if (empty($useridentity)) {
                     continue;
                 }
+
                 $userdata[] = $useridentity;
             }
             $output = $userfullname.' ('.implode(', ', $userdata).')';

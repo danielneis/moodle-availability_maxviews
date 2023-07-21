@@ -65,7 +65,7 @@ if ($form->is_cancelled()) {
         'other' => ['cmid' => $data->cmid],
         ];
 
-    if ($id) {
+    if ($id) { // Edit existence override.
         $key = array_key_first($data->userids);
         $userid = $data->userids[$key];
 
@@ -89,19 +89,21 @@ if ($form->is_cancelled()) {
         $eventarray['other']['type'] = 'updated';
 
         $msg = get_string('overrideupdated', 'availability_maxviews');
-    } else {
+    } else { // Add new overrides.
         // Modifying for multiple users change.
         foreach ($data->userids as $userid) {
             $record = [
                 'courseid' => $data->courseid,
                 'cmid' => $data->cmid,
                 'userid' => $userid,
-                'timeupdated' => time(),
             ];
+
             $newrecord = [
                 'maxviews' => $data->maxviews,
                 'overriderid' => $USER->id,
+                'timeupdated' => time(),
             ];
+
             if (!empty($data->resetviews)) {
                 $newrecord['lastreset'] = time();
                 $eventarray['other']['reset'] = true;
@@ -109,8 +111,9 @@ if ($form->is_cancelled()) {
                 $newrecord['lastreset'] = 0;
                 $eventarray['other']['reset'] = false;
             }
+
             $eventarray['relateduserid'] = $userid;
-            // Prevent duplication of records for same user which makes a conflict at error when calling get_record() later.
+            // Prevent duplication of records for same user which makes a conflict error when calling get_record() later.
             if ($oldrecord = $DB->get_record('availability_maxviews', $record)) {
                 $newrecord['id'] = $oldrecord->id;
 
