@@ -70,7 +70,7 @@ class index implements renderable, templatable {
             // The user that did the override process.
             $overrider = \core_user::get_user($o->overriderid);
             $overrides[$key]->overrider = fullname($overrider);
-            $overrides[$key]->date = max($o->timecreated, $o->timeupdated);
+            $overrides[$key]->date = $o->timeupdated;
         }
 
         $newoverrideurl = new moodle_url('/availability/condition/maxviews/override.php', ['courseid' => $this->courseid]);
