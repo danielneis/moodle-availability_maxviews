@@ -78,10 +78,11 @@ class override extends moodleform {
         // Adding the user's identity fields to make it easier to search for many users.
         $context = \context_course::instance($this->_customdata['courseid']);
         $userfields = \core_user\fields::get_identity_fields($context, true);
-
+        $filtersetting = get_config('availability_maxviews', 'filterusers');
         foreach ($users as $user) {
             // Filter users with those with restrictions only.
-            if (has_capability('moodle/course:ignoreavailabilityrestrictions', $context, $user)) {
+            if ($filtersetting === 'filter' &&
+            has_capability('moodle/course:ignoreavailabilityrestrictions', $context, $user)) {
                 continue;
             }
 

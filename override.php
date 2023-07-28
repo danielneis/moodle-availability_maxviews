@@ -88,6 +88,8 @@ if ($form->is_cancelled()) {
         $eventarray['relateduserid'] = $userid;
         $eventarray['other']['type'] = 'updated';
 
+        $event = \availability_maxviews\event\maxviews_override_updated::create($eventarray);
+
         $msg = get_string('overrideupdated', 'availability_maxviews');
     } else { // Add new overrides.
         // Modifying for multiple users change.

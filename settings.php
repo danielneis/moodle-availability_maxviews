@@ -30,13 +30,22 @@ if ($ADMIN->fulltree) {
 
     $options = [
         'normal' => get_string('normal_override', 'availability_maxviews'),
-        'add' => get_string('addition_override', 'availability_maxviews'),
+        'add'    => get_string('addition_override', 'availability_maxviews'),
     ];
     $settings->add(new admin_setting_configselect('availability_maxviews/overridetype',
-    get_string('overridetype', 'availability_maxviews'),
-    get_string('overridetype_desc', 'availability_maxviews'),
-    'normal',
-    $options));
+                                                get_string('overridetype', 'availability_maxviews'),
+                                                get_string('overridetype_desc', 'availability_maxviews'),
+                                                'normal',
+                                                $options));
 
+    $options = [
+        'all'    => get_string('allenroled', 'availability_maxviews'),
+        'filter' => get_string('filterenroled', 'availability_maxviews'),
+    ];
+    $settings->add(new admin_setting_configselect('availability_maxviews/filterusers',
+                                                get_string('filterusers', 'availability_maxviews'),
+                                                get_string('filterusers_desc', 'availability_maxviews'),
+                                                'all',
+                                                $options));
 }
 

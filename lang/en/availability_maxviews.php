@@ -23,6 +23,7 @@
  */
 
 $string['addition_override'] = 'Adding maxviews';
+$string['allenroled'] = 'All enrolled users';
 $string['ajaxerror'] = 'Error contacting server';
 $string['confirmdeleteoverride'] = 'Are you sure you want to delete the override for {$a}? This action cannot be undone.';
 $string['coursemodule'] = 'Course module';
@@ -37,6 +38,9 @@ override {$a->type} by user of id {$a->userid} and {$a->reset}';
 $string['event_maxviews_override_updated'] = 'Limitation of maxviews override updated';
 $string['event_maxviews_override_deleted'] = 'Limitation of maxviews override deleted';
 $string['fieldlabel'] = 'Maximum views:';
+$string['filterenroled'] = 'Only restricted users.';
+$string['filterusers'] = 'Filtration of enrolled users.';
+$string['filterusers_desc'] = 'Show all enrolled users in overriding process or show only users with no capability to ignore availability restriction (i.e. don\'t have the capability moodle/course:ignoreavailabilityrestrictions)';
 $string['lastreset'] = 'Last reset';
 $string['maxviews'] = 'Maximum views';
 $string['maxviews_add'] = 'Additional Maximum views';

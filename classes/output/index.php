@@ -67,10 +67,16 @@ class index implements renderable, templatable {
             $overrides[$key]->coursemodule = $modinfo->cms[$o->cmid]->get_formatted_name();
             $overrides[$key]->userfullname = fullname($o);
 
-            // The user that did the override process.
-            $overrider = \core_user::get_user($o->overriderid);
-            $overrides[$key]->overrider = fullname($overrider);
-            $overrides[$key]->date = $o->timeupdated;
+            if (!empty($o->overriderid)) {
+                // The user that did the override process.
+                $overrider = \core_user::get_user($o->overriderid);
+                $overrides[$key]->overrider = fullname($overrider);
+                $overrides[$key]->date = $o->timeupdated;
+            } else {
+                $overrides[$key]->overrider = '';
+                $overrides[$key]->date = '';
+            }
+
         }
 
         $newoverrideurl = new moodle_url('/availability/condition/maxviews/override.php', ['courseid' => $this->courseid]);
