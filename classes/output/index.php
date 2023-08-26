@@ -66,7 +66,6 @@ class index implements renderable, templatable {
             $overrides[$key]->deleteoverrideurl = $deleteoverrideurl->out(false);
             $overrides[$key]->coursemodule = $modinfo->cms[$o->cmid]->get_formatted_name();
             $overrides[$key]->userfullname = fullname($o);
-
             if (!empty($o->overriderid)) {
                 // The user that did the override process.
                 $overrider = \core_user::get_user($o->overriderid);

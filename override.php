@@ -30,6 +30,8 @@ $context = context_course::instance($courseid);
 
 require_login($courseid);
 require_capability('availability/maxviews:override', $context);
+// Check the type of overriding.
+$type = get_config('availability_maxviews', 'overridetype');
 
 if ($id) {
     $str = get_string('newoverride', 'availability_maxviews');
@@ -119,8 +121,11 @@ if ($form->is_cancelled()) {
             if ($oldrecord = $DB->get_record('availability_maxviews', $record)) {
                 $newrecord['id'] = $oldrecord->id;
 
-                // Adding the old maxviews.
-                $newrecord['maxviews'] += $oldrecord->maxviews;
+                if ($type == 'add') {
+                    // Adding the old maxviews.
+                    $newrecord['maxviews'] += $oldrecord->maxviews;
+                }
+
                 // Check if there is old reset first.
                 $newrecord['lastreset'] = max($newrecord['lastreset'], $oldrecord->lastreset);
                 $DB->update_record('availability_maxviews', (object)$newrecord);

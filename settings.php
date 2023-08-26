@@ -26,7 +26,8 @@ defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
 
-    $settings->add(new admin_setting_heading('availability_maxviews/settings', get_string('settingpage', 'availability_maxviews'), ''));
+    $settings->add(new admin_setting_heading('availability_maxviews/settings',
+                                                get_string('settingpage', 'availability_maxviews'), ''));
 
     $options = [
         'normal' => get_string('normal_override', 'availability_maxviews'),
