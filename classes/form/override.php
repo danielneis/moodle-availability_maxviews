@@ -124,7 +124,7 @@ class override extends moodleform {
         if ($id) {
             $mform->freeze('userids');
         }
-        if ($type === 'normal' || !empty($id)) { // Normal override or editing.
+        if ($type === 'normal') { // Normal override.
             $identifier = 'maxviews';
         } else { // Additional maxviews.
             $identifier = 'maxviews_add';
