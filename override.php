@@ -91,7 +91,8 @@ if ($form->is_cancelled()) {
         $eventarray['other']['type'] = 'updated';
 
         $event = \availability_maxviews\event\maxviews_override_updated::create($eventarray);
-
+        // Trigger the event.
+        $event->trigger();
         $msg = get_string('overrideupdated', 'availability_maxviews');
     } else { // Add new overrides.
         // Modifying for multiple users change.
@@ -132,7 +133,8 @@ if ($form->is_cancelled()) {
 
                 $eventarray['other']['type'] = 'updated';
                 $event = \availability_maxviews\event\maxviews_override_updated::create($eventarray);
-
+                // Trigger the event.
+                $event->trigger();
             } else {
                 $newrecord['timecreated'] = time();
                 $recordobject = (object)array_merge($record, $newrecord);
@@ -140,14 +142,15 @@ if ($form->is_cancelled()) {
 
                 $eventarray['other']['type'] = 'created';
                 $event = \availability_maxviews\event\maxviews_override_created::create($eventarray);
-
+                // Trigger the event.
+                $event->trigger();
             }
+            unset($record, $newrecord, $eventarray, $oldrecord);
         }
         $msg = get_string('overrideadded', 'availability_maxviews');
     }
 
-    // Trigger the event.
-    $event->trigger();
+
     redirect(new moodle_url('/availability/condition/maxviews/index.php', ['courseid' => $courseid]), $msg);
 } else {
     echo $OUTPUT->header(),
