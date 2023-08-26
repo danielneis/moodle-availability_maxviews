@@ -36,6 +36,8 @@ class override extends moodleform {
         $type = get_config('availability_maxviews', 'overridetype');
         $mform = $this->_form;
 
+        $id = $this->_customdata['id'];
+
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
 
@@ -115,12 +117,14 @@ class override extends moodleform {
             'userids',
             get_string('participant', 'availability_maxviews'),
             $options,
-            ['multiple' => true]
+            ['multiple' => empty($id)]
         );
         $mform->addRule('userids', null, 'required', null, 'client');
         $mform->addHelpButton('userids', 'participant', 'availability_maxviews');
-
-        if ($type === 'normal') { // Normal override.
+        if ($id) {
+            $mform->freeze('userids');
+        }
+        if ($type === 'normal' || !empty($id)) { // Normal override or editing.
             $identifier = 'maxviews';
         } else { // Additional maxviews.
             $identifier = 'maxviews_add';

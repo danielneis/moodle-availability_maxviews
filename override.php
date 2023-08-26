@@ -38,14 +38,14 @@ if ($id) {
 } else {
     $str = get_string('editingoverride', 'availability_maxviews');
 }
-$url = new moodle_url('/availability/condition/maxviews/override.php', ['courseid' => $courseid]);
+$url = new moodle_url('/availability/condition/maxviews/override.php', ['courseid' => $courseid, 'id' => $id]);
 
 $PAGE->set_context($context);
 $PAGE->set_url($url);
 $PAGE->set_title($str . ' - ' . $SITE->fullname);
 $PAGE->set_heading($str);
 
-$form = new \availability_maxviews\form\override($url, ['courseid' => $courseid]);
+$form = new \availability_maxviews\form\override($url, ['courseid' => $courseid, 'id' => $id]);
 if ($id) {
     $recordold = $DB->get_record('availability_maxviews', ['id' => $id]);
     $recordold->userids[] = $recordold->userid;
@@ -68,8 +68,12 @@ if ($form->is_cancelled()) {
         ];
 
     if ($id) { // Edit existence override.
-        $key = array_key_first($data->userids);
-        $userid = $data->userids[$key];
+        if (is_array($data->userids)) {
+            $key = array_key_first($data->userids);
+            $userid = $data->userids[$key];
+        } else {
+            $userid = $data->userids;
+        }
 
         $record = (object)[
             'id' => $id,
