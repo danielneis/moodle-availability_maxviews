@@ -88,12 +88,15 @@ class condition extends \core_availability\condition {
             $readers = $logmanager->get_readers('core\log\sql_select_reader');
         }
         $reader = array_pop($readers);
+
+        $cmid = $this->get_selfid($info);
+
         $context = $info->get_context();
         $where = 'contextid = :context AND userid = :userid AND crud = :crud';
         $params = ['context' => $context->id, 'userid' => $userid, 'crud' => 'r'];
 
         $viewslimit = $this->viewslimit;
-        if ($override = $DB->get_record('availability_maxviews', ['cmid' => $info->get_course_module()->id, 'userid' => $userid])) {
+        if ($override = $DB->get_record('availability_maxviews', ['cmid' => $cmid, 'userid' => $userid])) {
             if (!empty($override->lastreset)) {
                 $where .= ' AND timecreated >= :lastreset';
                 $params['lastreset'] = $override->lastreset;
@@ -131,11 +134,13 @@ class condition extends \core_availability\condition {
         $reader = array_pop($readers);
         $context = $info->get_context();
 
+        $cmid = $this->get_selfid($info);
+
         $where = 'contextid = :context AND userid = :userid AND crud = :crud';
         $params = ['context' => $context->id, 'userid' => $USER->id, 'crud' => 'r'];
 
         $viewslimit = $this->viewslimit;
-        if ($override = $DB->get_record('availability_maxviews', ['cmid' => $info->get_course_module()->id, 'userid' => $USER->id])) {
+        if ($override = $DB->get_record('availability_maxviews', ['cmid' => $cmid, 'userid' => $USER->id])) {
             if (!empty($override->lastreset)) {
                 $where .= ' AND timecreated >= :lastreset';
                 $params['lastreset'] = $override->lastreset;
@@ -155,6 +160,30 @@ class condition extends \core_availability\condition {
         } else {
             return get_string('eitherdescription', 'availability_maxviews', $a);
         }
+    }
+
+    /**
+     * Return current item ID (cmid or sectionid).
+     *
+     * @param info $info
+     * @return int cmid/sectionid/null
+     */
+    public function get_selfid(\core_availability\info $info): ?int {
+
+        if ($info instanceof info_module) {
+            $cminfo = $info->get_course_module();
+            if (!empty($cminfo->id)) {
+                 return $cminfo->id;
+            }
+        }
+        if ($info instanceof info_section) {
+            $section = $info->get_section();
+            if (!empty($section->id)) {
+                return $section->id;
+            }
+
+        }
+        return null;
     }
 
     /**
