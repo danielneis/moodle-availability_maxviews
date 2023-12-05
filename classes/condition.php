@@ -89,7 +89,7 @@ class condition extends \core_availability\condition {
         }
         $reader = array_pop($readers);
 
-        $cmid = $this->get_selfid($info);
+        [$cmid, $kind] = $this->get_selfid($info);
 
         $context = $info->get_context();
         $where = 'contextid = :context AND userid = :userid AND crud = :crud';
@@ -97,7 +97,8 @@ class condition extends \core_availability\condition {
 
         $viewslimit = $this->viewslimit;
 
-        if ($override = $DB->get_record('availability_maxviews', ['cmid' => $cmid, 'userid' => $userid])) {
+        if ($kind == 'cm' // Till now the table only contains data of cms, and it might be conflicts in ids.
+        && $override = $DB->get_record('availability_maxviews', ['cmid' => $cmid, 'userid' => $userid])) {
             if (!empty($override->lastreset)) {
                 $where .= ' AND timecreated >= :lastreset';
                 $params['lastreset'] = $override->lastreset;
@@ -111,11 +112,13 @@ class condition extends \core_availability\condition {
                 }
             }
         }
+
         $viewscount = $reader->get_events_select_count($where, $params);
         $allow = ($viewscount < $viewslimit);
         if ($not) {
             $allow = !$allow;
         }
+
         return $allow;
     }
 
@@ -141,18 +144,20 @@ class condition extends \core_availability\condition {
         $reader = array_pop($readers);
         $context = $info->get_context();
 
-        $cmid = $this->get_selfid($info);
+        [$cmid, $kind] = $this->get_selfid($info);
 
         $where = 'contextid = :context AND userid = :userid AND crud = :crud';
         $params = ['context' => $context->id, 'userid' => $USER->id, 'crud' => 'r'];
 
         $viewslimit = $this->viewslimit;
 
-        if ($override = $DB->get_record('availability_maxviews', ['cmid' => $cmid, 'userid' => $USER->id])) {
+        // The table should contain a field that determine if the 'cmid' is for section or course module.
+        if ($kind == 'cm' // Till now the table only contains data of cms, and it might be conflicts in ids.
+        && $override = $DB->get_record('availability_maxviews', ['cmid' => $cmid, 'userid' => $USER->id])) {
             if (!empty($override->lastreset)) {
 
                 $where .= ' AND timecreated >= :lastreset';
-                $params['lastreset'] = $lastreset;
+                $params['lastreset'] = $override->lastreset;
             }
             // If there is override, set the new value according to the type of override.
             if (!empty($override->maxviews)) {
@@ -180,24 +185,24 @@ class condition extends \core_availability\condition {
      * Return current item ID (cmid or sectionid).
      *
      * @param info $info
-     * @return int cmid/sectionid/null
+     * @return array cmid/sectionid/null
      */
-    public function get_selfid(\core_availability\info $info): ?int {
+    public function get_selfid(\core_availability\info $info): ?array {
 
         if ($info instanceof info_module) {
             $cminfo = $info->get_course_module();
             if (!empty($cminfo->id)) {
-                 return $cminfo->id;
+                 return [$cminfo->id, 'cm'];
             }
         }
         if ($info instanceof info_section) {
             $section = $info->get_section();
             if (!empty($section->id)) {
-                return $section->id;
+                return [$section->id, 'section'];
             }
 
         }
-        return null;
+        return [0, 0];
     }
 
     /**
