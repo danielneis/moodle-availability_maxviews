@@ -202,7 +202,7 @@ class condition extends \core_availability\condition {
             }
 
         }
-        return [0, 0];
+        return [null, ''];
     }
 
     /**
