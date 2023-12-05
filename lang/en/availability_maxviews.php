@@ -70,3 +70,5 @@ $string['resetno'] = 'maxviews not reset';
 $string['settingpage'] = 'Settings for availability condition maxviews';
 $string['title'] = 'Maximum Views';
 $string['validnumber'] = 'You must add a number higher than 0';
+$string['haveremainedviews'] = 'Attention: The maximum number of views for this is {$a->viewslimit} times (you currently have {$a->viewsremain} remain)';
+$string['outofviews'] = 'Sorry, you have reached the limit of {$a->viewslimit} views (you already viewed it {$a->viewscount} times)';
