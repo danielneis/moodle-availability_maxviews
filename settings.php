@@ -48,5 +48,15 @@ if ($ADMIN->fulltree) {
                                                 get_string('filterusers_desc', 'availability_maxviews'),
                                                 'all',
                                                 $options));
+    $settings->add(new admin_setting_configcheckbox('availability_maxviews/showlimits',
+                                                get_string('showlimits', 'availability_maxviews'),
+                                                get_string('showlimits_desc', 'availability_maxviews'),
+                                                0));
+    $showsetlimit = new admin_setting_configcheckbox('availability_maxviews/showsetslimits',
+                                                get_string('showsetslimits', 'availability_maxviews'),
+                                                get_string('showsetslimits_desc', 'availability_maxviews'),
+                                                0);
+    $settings->add($showsetlimit);
+    $settings->hide_if('availability_maxviews/showsetslimits', 'availability_maxviews/showlimits', 'notchecked');
 }
 

@@ -72,3 +72,7 @@ $string['title'] = 'Maximum Views';
 $string['validnumber'] = 'You must add a number higher than 0';
 $string['haveremainedviews'] = 'Attention: The maximum number of views for this is {$a->viewslimit} times (you currently have {$a->viewsremain} remain)';
 $string['outofviews'] = 'Sorry, you have reached the limit of {$a->viewslimit} views (you already viewed it {$a->viewscount} times)';
+$string['showlimits'] = 'Show views limit';
+$string['showlimits_desc'] = 'If selected the view limits will be shown under each course module so the users knows how much views left. (minimum limits viewed in case of multiple maxviews instances)';
+$string['showsetslimits'] = 'Show view limits in restriction set.';
+$string['showsetslimits_desc'] = 'If selected also show view limits even if the view limits is a part of restriction set. (minimum limits viewed in case of multiple maxviews instances)';

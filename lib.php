@@ -50,22 +50,12 @@ function availability_maxviews_extend_navigation_course(navigation_node $navigat
  */
 function availability_maxviews_before_footer() {
     global $USER, $COURSE, $DB, $PAGE, $OUTPUT;
-    $modinfo = get_fast_modinfo($COURSE->id);
-    $cms = $modinfo->cms;
-    $moduleswithmaxviews = [];
-    foreach ($cms as $cm) {
-        $getviewslimit = $DB->get_field_select('course_modules', 'availability' ,
-        "`availability` LIKE '%maxviews%' AND `id` = '$cm->id'", ['id' => $cm->id], IGNORE_MISSING);
-        if ($getviewslimit != null && $cm->uservisible) {
-            $moduleswithmaxviews[] = $cm->id;
-        }
-    }
-
-    if (empty($moduleswithmaxviews)) {
+    if (empty(get_config('availability_maxviews', 'showlimits'))) {
         return;
     }
-
-    $cms = $moduleswithmaxviews;
+    $showsets = get_config('availability_maxviews', 'showsetslimits');
+    $modinfo = get_fast_modinfo($COURSE->id);
+    $cms = $modinfo->cms;
     // Get the views of current user and get string from availability max-views.
     $logmanager = get_log_manager();
     if (!$readers = $logmanager->get_readers('core\log\sql_reader')) {
@@ -74,44 +64,43 @@ function availability_maxviews_before_footer() {
     }
     $reader = array_pop($readers);
 
-    // This loop for each course module in the current course.
-    foreach ($cms as $cmid) {
-        $cm = $modinfo->get_cm($cmid);
-        $info = new core_availability\info_module($cm);
-        $context = $info->get_context();
+    foreach ($cms as $key => $cm) {
+        $cmid = $cm->id;
+        if (empty($cm->availability)) {
+            continue;
+        }
 
-        // Get the views limits for this module from availability_maxviews.
-        $tree = $info->get_availability_tree();
-        $reflectiontree = new \ReflectionClass($tree);
-        $reflectionchildren = $reflectiontree->getProperty('children');
-        $reflectionchildren->setAccessible(true);
+        if (!$cm->visible || $cm->is_stealth()) {
+            continue;
+        }
 
-        $children = $reflectionchildren->getValue($tree);
 
-        $viewslimit = PHP_INT_MAX;
-
-        foreach ($children as $child) {
-            if ($child instanceof \availability_maxviews\condition) {
-                // This is a max views condition.
-
-                // Viewslimit is protected so again use reflection.
-                $reflectionmaxviews = new \ReflectionClass($child);
-                $reflectionviewslimit = $reflectionmaxviews->getProperty('viewslimit');
-                $reflectionviewslimit->setAccessible(true);
-
-                $newviewslimit = (int)$reflectionviewslimit->getValue($child);
-
-                // It's unlikely but its possible to add more than one max views condition.
-                // So use the smallest value.
-                if ($newviewslimit < $viewslimit) {
-                    $viewslimit = $newviewslimit;
+        $av = json_decode($cm->availability);
+        $allviewslimits = [];
+        foreach ($av->c as $restriction) {
+            if (!empty($restriction->type) && $restriction->type == 'maxviews') {
+                $allviewslimits[] = (int)$restriction->viewslimit;
+            } else if ($showsets && !empty($restriction->c) && is_array($restriction->c)) {
+                foreach($restriction->c as $set) {
+                    if (!empty($set->type) && $set->type == "maxviews") {
+                        $allviewslimits[] = (int)$set->viewslimit;
+                    }
                 }
-
             }
         }
+
+        if (empty($allviewslimits)) {
+            unset($cms[$key]);
+            continue;
+        }
+
+        $viewslimit = min($allviewslimits);
+
+        $context = $cm->context;
+
         $where = 'contextid = :context AND userid = :userid AND crud = :crud';
         $params = ['context' => $context->id, 'userid' => $USER->id, 'crud' => 'r'];
-        $conditions = ['cmid' => $info->get_course_module()->id, 'userid' => $USER->id];
+        $conditions = ['cmid' => $cmid, 'userid' => $USER->id];
         if ($override = $DB->get_record('availability_maxviews', $conditions)) {
             // To make sure that it is numeric integer value.
             $lastreset = intval($override->lastreset);
@@ -119,6 +108,7 @@ function availability_maxviews_before_footer() {
                 $where .= ' AND timecreated >= :lastreset';
                 $params['lastreset'] = $override->lastreset;
             }
+
             // Check the type of overriding.
             $type = get_config('availability_maxviews', 'overridetype');
             // If there is override, set the new value according to the type of override.
@@ -130,6 +120,7 @@ function availability_maxviews_before_footer() {
                 }
             }
         }
+
         $viewscount = $reader->get_events_select_count($where, $params);
 
         // Prepare for the output.
