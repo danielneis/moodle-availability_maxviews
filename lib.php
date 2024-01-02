@@ -59,6 +59,11 @@ function availability_maxviews_before_footer() {
         return;
     }
 
+    $urlpath = $PAGE->url->get_path();
+    if (!stristr($urlpath, 'course/view.php')) {
+        return;
+    }
+
     $showsets = get_config('availability_maxviews', 'showsetslimits');
 
     $modinfo = get_fast_modinfo($COURSE->id);
