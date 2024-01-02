@@ -50,13 +50,21 @@ function availability_maxviews_extend_navigation_course(navigation_node $navigat
  */
 function availability_maxviews_before_footer() {
     global $USER, $COURSE, $DB, $PAGE, $OUTPUT;
+
     if (empty(get_config('availability_maxviews', 'showlimits'))) {
         return;
     }
+
+    if (empty($COURSE->id)) {
+        return;
+    }
+
     $showsets = get_config('availability_maxviews', 'showsetslimits');
+
     $modinfo = get_fast_modinfo($COURSE->id);
     $cms = $modinfo->cms;
-    // Get the views of current user and get string from availability max-views.
+
+    // Prepare the log reader to get the views of current user.
     $logmanager = get_log_manager();
     if (!$readers = $logmanager->get_readers('core\log\sql_reader')) {
         // Should be using 2.8, use old class.
@@ -74,13 +82,14 @@ function availability_maxviews_before_footer() {
             continue;
         }
 
-
         $av = json_decode($cm->availability);
         $allviewslimits = [];
         foreach ($av->c as $restriction) {
+            // Checking for restrictions of kind max-views.
             if (!empty($restriction->type) && $restriction->type == 'maxviews') {
                 $allviewslimits[] = (int)$restriction->viewslimit;
             } else if ($showsets && !empty($restriction->c) && is_array($restriction->c)) {
+                // This means that it is a part of restriction set.
                 foreach($restriction->c as $set) {
                     if (!empty($set->type) && $set->type == "maxviews") {
                         $allviewslimits[] = (int)$set->viewslimit;
@@ -90,16 +99,17 @@ function availability_maxviews_before_footer() {
         }
 
         if (empty($allviewslimits)) {
+            // Not a max-views.
             unset($cms[$key]);
             continue;
         }
 
+        // In case of multiple max-views instances, get the minimum.
         $viewslimit = min($allviewslimits);
 
-        $context = $cm->context;
-
+        // Not let's get the view counts for the current user.
         $where = 'contextid = :context AND userid = :userid AND crud = :crud';
-        $params = ['context' => $context->id, 'userid' => $USER->id, 'crud' => 'r'];
+        $params = ['context' => $cm->context->id, 'userid' => $USER->id, 'crud' => 'r'];
         $conditions = ['cmid' => $cmid, 'userid' => $USER->id];
         if ($override = $DB->get_record('availability_maxviews', $conditions)) {
             // To make sure that it is numeric integer value.
@@ -141,50 +151,6 @@ function availability_maxviews_before_footer() {
         $render .= $OUTPUT->notification($note, $type);
         $render .= html_writer::end_div();
 
-        // JavaScript code to show the views of certain user even if he didn't restricted.
-        // For Tiles course format.
-        $code = '
-            require(["jquery", "core/ajax"], function($, ajax) {
-                // The following listener is needed for the Tiles course format, where sections are loaded on demand.
-                $(document).ajaxComplete(function(event, xhr, settings) {
-                    if (typeof (settings.data) !== \'undefined\') {
-                        var data = JSON.parse(settings.data);
-                        if (data.length > 0 && typeof (data[0].methodname) !== \'undefined\') {
-                            if (data[0].methodname == \'format_tiles_get_single_section_page_html\' // Tile load.
-                                // || data[0].methodname == \'format_tiles_log_tile_click\'
-                                ) { // Tile load, cached.
-                                $(document).ready(function() {
-                                    var existed = $("#availability_maxviews_count_'.$cmid.'");
-                                    if (existed) {
-                                        // Remove exist element.
-                                        existed.remove();
-                                    }
-                                    var module = $("#module-'.$cmid.' .description");
-                                    module.append("'.addslashes_js($render).'");
-                                });
-                            }
-                        }
-                    }
-                });
-                $(document).ready(function() {
-                    var x = setInterval(function() {
-                        var existed = $("#availability_maxviews_count_'.$cmid.'");
-                        if (existed) {
-                            // Remove exist element.
-                            existed.remove();
-                        }
-                        var module = $("#module-'.$cmid.' .description");
-                        if (module != null) {
-                            module.append("'.addslashes_js($render).'");
-                            if ($("#availability_maxviews_count_'.$cmid.'")) {
-                                clearInterval(x);
-                            }
-                        }
-                    });
-                });
-            });
-        ';
-
-        $PAGE->requires->js_init_code($code);
+        $PAGE->requires->js_call_amd('availability_maxviews/display', 'init', ['cmid' => $cmid, 'render' => $render]);
     }
 }

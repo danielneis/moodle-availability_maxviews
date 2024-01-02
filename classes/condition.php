@@ -70,7 +70,7 @@ class condition extends \core_availability\condition {
      * according to this availability condition.
      *
      * @param bool $not Set true if we are inverting the condition
-     * @param info $info Item we're checking
+     * @param \core_availability\info $info Item we're checking
      * @param bool $grabthelot Performance hint: if true, caches information
      *   required for all course-modules, to make the front page and similar
      *   pages work more quickly (works only for current user)
@@ -128,7 +128,7 @@ class condition extends \core_availability\condition {
      *
      * @param bool $full Set true if this is the 'full information' view
      * @param bool $not Set true if we are inverting the condition
-     * @param info $info Item we're checking
+     * @param \core_availability\info $info Item we're checking
      * @return string Information string (for admin) about all restrictions on
      *   this item
      */
@@ -184,7 +184,7 @@ class condition extends \core_availability\condition {
     /**
      * Return current item ID (cmid or sectionid).
      *
-     * @param info $info
+     * @param \core_availability\info $info
      * @return array cmid/sectionid/null
      */
     public function get_selfid(\core_availability\info $info): ?array {
