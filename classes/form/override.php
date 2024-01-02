@@ -49,14 +49,7 @@ class override extends moodleform {
 
         foreach ($modinfo->cms as $i) {
             // Filter course modules by that only has maxviews conditions.
-            if (!empty($i->availability)) {
-                $av = json_decode($i->availability);
-                foreach ($av->c as $condition) {
-                    if ($condition->type !== 'maxviews') {
-                        continue;
-                    }
-                }
-            } else {
+            if (!$this->has_maxviews($i)) {
                 continue;
             }
 
@@ -137,5 +130,34 @@ class override extends moodleform {
         $mform->setType('resetviews', PARAM_INT);
 
         $this->add_action_buttons();
+    }
+
+    /**
+     * Check if the course module has restriction by maxviews.
+     * @param \cm_info $cm
+     * @return bool
+     */
+    private function has_maxviews(\cm_info $cm) {
+        if (!empty($cm->availability)) {
+            $tree = json_decode($cm->availability);
+            return $this->maxviews_in_the_tree($tree);
+        }
+        return false;
+    }
+
+    /**
+     * Check if the availability tree has maxviews in it.
+     * @param object $tree
+     * @return bool
+     */
+    private function maxviews_in_the_tree($tree) {
+        foreach ($tree->c as $condition) {
+            if (!empty($condition->type) && $condition->type === 'maxviews') {
+                return true;
+            } else if (!empty($condition->c) && $this->maxviews_in_the_tree($condition)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
