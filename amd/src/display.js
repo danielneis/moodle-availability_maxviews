@@ -14,10 +14,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * TODO describe module display
+ * Display the views limits for course modules.
  *
  * @module     availability_maxviews/display
- * @copyright  2024 YOUR NAME <your@email.com>
+ * @copyright  2024 Mohammad Farouk <phun.for.physics@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 import $ from "jquery";
@@ -35,7 +35,7 @@ export const init = (cmid, render) => {
     //                 $(document).ready(function() {
     //                     var existed = $("#availability_maxviews_count_" + cmid);
     //                     if (!existed || !existed[0] || existed[0] == undefined) {
-    //                         var module = $("#module-"+$cmid+" .description");
+    //                         var module = $("#module-"+cmid+" .description");
     //                         module.append(render);
     //                     }
     //                 });
