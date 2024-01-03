@@ -64,8 +64,6 @@ function availability_maxviews_before_footer() {
         return;
     }
 
-    $showsets = get_config('availability_maxviews', 'showsetslimits');
-
     $modinfo = get_fast_modinfo($COURSE->id);
     $cms = $modinfo->cms;
 
@@ -88,20 +86,7 @@ function availability_maxviews_before_footer() {
         }
 
         $av = json_decode($cm->availability);
-        $allviewslimits = [];
-        foreach ($av->c as $restriction) {
-            // Checking for restrictions of kind max-views.
-            if (!empty($restriction->type) && $restriction->type == 'maxviews') {
-                $allviewslimits[] = (int)$restriction->viewslimit;
-            } else if ($showsets && !empty($restriction->c) && is_array($restriction->c)) {
-                // This means that it is a part of restriction set.
-                foreach($restriction->c as $set) {
-                    if (!empty($set->type) && $set->type == "maxviews") {
-                        $allviewslimits[] = (int)$set->viewslimit;
-                    }
-                }
-            }
-        }
+        $allviewslimits = availability_maxviews_get_maxviews($av);
 
         if (empty($allviewslimits)) {
             // Not a max-views.
@@ -158,4 +143,28 @@ function availability_maxviews_before_footer() {
 
         $PAGE->requires->js_call_amd('availability_maxviews/display', 'init', ['cmid' => $cmid, 'render' => $render]);
     }
+}
+
+/**
+ * Extract all limits by maxview availability in a given availability tree.
+ * @param object $tree
+ * @return array[int]
+ */
+function availability_maxviews_get_maxviews($tree) {
+    $showsets = get_config('availability_maxviews', 'showsetslimits');
+    $allviewslimits = [];
+
+    foreach ($tree->c as $restriction) {
+        // Checking for restrictions of kind max-views.
+        if (!empty($restriction->type) && $restriction->type == 'maxviews') {
+            $allviewslimits[] = (int)$restriction->viewslimit;
+
+        } else if ($showsets && !empty($restriction->c)) {
+            // This means that it is a part of restriction set.
+            $setviewslimits = availability_maxviews_get_maxviews($restriction);
+            $allviewslimits = array_merge($allviewslimits, $setviewslimits);
+        }
+    }
+
+    return $allviewslimits;
 }
