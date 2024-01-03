@@ -24,6 +24,10 @@
 
 namespace availability_maxviews;
 
+use core_availability\info;
+use core_availability\info_module;
+use core_availability\info_section;
+
 /**
  * maxviews condition.
  *
@@ -59,7 +63,7 @@ class condition extends \core_availability\condition {
      * by JavaScript code.
      *
      * @param int $viewslimit The limit of views for users
-     * @return stdClass Object representing condition
+     * @return \stdClass Object representing condition
      */
     public static function get_json($viewslimit = 5) {
         return (object)array('type' => 'maxviews', 'viewslimit' => (int)$viewslimit);
@@ -70,14 +74,14 @@ class condition extends \core_availability\condition {
      * according to this availability condition.
      *
      * @param bool $not Set true if we are inverting the condition
-     * @param \core_availability\info $info Item we're checking
+     * @param info $info Item we're checking
      * @param bool $grabthelot Performance hint: if true, caches information
      *   required for all course-modules, to make the front page and similar
      *   pages work more quickly (works only for current user)
      * @param int $userid User ID to check availability for
      * @return bool True if available
      */
-    public function is_available($not, \core_availability\info $info, $grabthelot, $userid) {
+    public function is_available($not, info $info, $grabthelot, $userid) {
 
         [$viewscount, $viewslimit] = $this->get_views_count_limit($info, $userid);
 
@@ -95,11 +99,11 @@ class condition extends \core_availability\condition {
      *
      * @param bool $full Set true if this is the 'full information' view
      * @param bool $not Set true if we are inverting the condition
-     * @param \core_availability\info $info Item we're checking
+     * @param info $info Item we're checking
      * @return string Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description($full, $not, \core_availability\info $info) {
+    public function get_description($full, $not, info $info) {
         global $USER, $DB;
 
         [$viewscount, $viewslimit] = $this->get_views_count_limit($info);
@@ -117,11 +121,11 @@ class condition extends \core_availability\condition {
 
     /**
      * Return the count of views and the limits for a given user.
-     * @param \core_availability\info $info
+     * @param info $info
      * @param int $userid if null it will refer to the current user.
      * @return [] [viewscount, viewslimit]
      */
-    private function get_views_count_limit(\core_availability\info $info, $userid = null) {
+    private function get_views_count_limit(info $info, $userid = null) {
         global $DB;
         if (empty($userid)) {
             global $USER;
@@ -161,6 +165,7 @@ class condition extends \core_availability\condition {
                 }
             }
         }
+
         $viewscount = $reader->get_events_select_count($where, $params);
 
         return [$viewscount, $viewslimit];
@@ -169,24 +174,25 @@ class condition extends \core_availability\condition {
     /**
      * Return current item ID (cmid or sectionid).
      *
-     * @param \core_availability\info $info
+     * @param info $info
      * @return array cmid/sectionid/null
      */
-    public function get_selfid(\core_availability\info $info): ?array {
+    public function get_selfid(info $info): ?array {
 
-        if ($info instanceof \core_availability\info_module) {
+        if ($info instanceof info_module) {
             $cminfo = $info->get_course_module();
             if (!empty($cminfo->id)) {
                  return [$cminfo->id, 'cm'];
             }
         }
-        if ($info instanceof \core_availability\info_section) {
+
+        if ($info instanceof info_section) {
             $section = $info->get_section();
             if (!empty($section->id)) {
                 return [$section->id, 'section'];
             }
-
         }
+
         return [null, ''];
     }
 
