@@ -15,7 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace availability_maxviews\output;
-defined('MOODLE_INTERNAL') || die();
 
 use moodle_url;
 use renderable;
@@ -31,6 +30,8 @@ use renderer_base;
  */
 class index implements renderable, templatable {
 
+    public $courseid;
+
     public $reports = [];
 
     /**
@@ -42,6 +43,10 @@ class index implements renderable, templatable {
 
     public function export_for_template(renderer_base $output) {
         global $DB;
+
+        $type = get_config('availability_maxviews', 'overridetype');
+        $typeadd = ($type === 'add');
+
         $userfieldsapi = \core_user\fields::for_name();
         $usernamefields = $userfieldsapi->get_sql('u', false, '', '', false)->selects;
         $sql = 'SELECT m.*, ' . $usernamefields . '
@@ -51,6 +56,7 @@ class index implements renderable, templatable {
                  WHERE m.courseid = :courseid';
         $overrides = $DB->get_records_sql($sql, ['courseid' => $this->courseid]);
         $modinfo = get_fast_modinfo($this->courseid);
+
         foreach ($overrides as $key => $o) {
             $params = ['courseid' => $this->courseid, 'id' => $o->id];
             $overrideurl = new moodle_url('/availability/condition/maxviews/override.php', $params);
@@ -60,11 +66,24 @@ class index implements renderable, templatable {
             $overrides[$key]->deleteoverrideurl = $deleteoverrideurl->out(false);
             $overrides[$key]->coursemodule = $modinfo->cms[$o->cmid]->get_formatted_name();
             $overrides[$key]->userfullname = fullname($o);
+            if (!empty($o->overriderid)) {
+                // The user that did the override process.
+                $overrider = \core_user::get_user($o->overriderid);
+                $overrides[$key]->overrider = fullname($overrider);
+                $overrides[$key]->date = $o->timeupdated;
+            } else {
+                $overrides[$key]->overrider = '';
+                $overrides[$key]->date = '';
+            }
+
         }
+
+        $newoverrideurl = new moodle_url('/availability/condition/maxviews/override.php', ['courseid' => $this->courseid]);
         return (object)[
             'overrides' => array_values($overrides),
+            'typeadd' => $typeadd,
             'hasoverrides' => !empty($overrides),
-            'newoverrideurl' => (new moodle_url('/availability/condition/maxviews/override.php', ['courseid' => $this->courseid]))->out(false),
+            'newoverrideurl' => $newoverrideurl->out(false),
         ];
     }
 }

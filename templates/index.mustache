@@ -31,8 +31,15 @@
         <tr>
             <td>{{#str}} coursemodule, availability_maxviews {{/str}}</td>
             <td>{{#str}} participant, availability_maxviews {{/str}}</td>
-            <td>{{#str}} maxviews, availability_maxviews {{/str}}</td>
+            {{#typeadd}}
+                <td>{{#str}} maxviews_add, availability_maxviews {{/str}}</td>
+            {{/typeadd}}
+            {{^typeadd}}
+                <td>{{#str}} maxviews, availability_maxviews {{/str}}</td>
+            {{/typeadd}}
             <td>{{#str}} lastreset, availability_maxviews {{/str}}</td>
+            <td>{{#str}} overrider, availability_maxviews {{/str}}</td>
+            <td>{{#str}} overridetime, availability_maxviews {{/str}}</td>
             <td>{{#str}} actions {{/str}}</td>
         </tr>
     </thead>
@@ -42,7 +49,9 @@
               <td>{{coursemodule}}</td>
               <td>{{userfullname}}</td>
               <td>{{maxviews}}</td>
-              <td>{{#lastreset}}{{#userdate}} {{lastreset}} , {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}{{/lastreset}}</td>
+              <td>{{#lastreset}} {{#userdate}} {{lastreset}} , {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}} {{/lastreset}}</td>
+              <td>{{overrider}}</td>
+              <td>{{#userdate}} {{date}} , {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}</td>
               <td>
               <a href="{{{overrideurl}}}" class="btn btn-secondary">{{#str}} edit {{/str}}</a>
               <a href="{{{deleteoverrideurl}}}" class="btn btn-secondary">{{#str}} delete {{/str}}</a>

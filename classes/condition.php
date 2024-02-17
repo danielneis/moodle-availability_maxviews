@@ -24,7 +24,9 @@
 
 namespace availability_maxviews;
 
-defined('MOODLE_INTERNAL') || die();
+use core_availability\info;
+use core_availability\info_module;
+use core_availability\info_section;
 
 /**
  * maxviews condition.
@@ -61,7 +63,7 @@ class condition extends \core_availability\condition {
      * by JavaScript code.
      *
      * @param int $viewslimit The limit of views for users
-     * @return stdClass Object representing condition
+     * @return \stdClass Object representing condition
      */
     public static function get_json($viewslimit = 5) {
         return (object)array('type' => 'maxviews', 'viewslimit' => (int)$viewslimit);
@@ -79,37 +81,15 @@ class condition extends \core_availability\condition {
      * @param int $userid User ID to check availability for
      * @return bool True if available
      */
-    public function is_available($not, \core_availability\info $info, $grabthelot, $userid) {
-        global $DB;
+    public function is_available($not, info $info, $grabthelot, $userid) {
 
-        $logmanager = get_log_manager();
-        if (!$readers = $logmanager->get_readers('core\log\sql_reader')) {
-            // Should be using 2.8, use old class.
-            $readers = $logmanager->get_readers('core\log\sql_select_reader');
-        }
-        $reader = array_pop($readers);
+        [$viewscount, $viewslimit] = $this->get_views_count_limit($info, $userid);
 
-        $cmid = $this->get_selfid($info);
-
-        $context = $info->get_context();
-        $where = 'contextid = :context AND userid = :userid AND crud = :crud';
-        $params = ['context' => $context->id, 'userid' => $userid, 'crud' => 'r'];
-
-        $viewslimit = $this->viewslimit;
-        if ($override = $DB->get_record('availability_maxviews', ['cmid' => $cmid, 'userid' => $userid])) {
-            if (!empty($override->lastreset)) {
-                $where .= ' AND timecreated >= :lastreset';
-                $params['lastreset'] = $override->lastreset;
-            }
-            if (!empty($override->maxviews)) {
-                $viewslimit = $override->maxviews;
-            }
-        }
-        $viewscount = $reader->get_events_select_count($where, $params);
         $allow = ($viewscount < $viewslimit);
         if ($not) {
             $allow = !$allow;
         }
+
         return $allow;
     }
 
@@ -123,33 +103,10 @@ class condition extends \core_availability\condition {
      * @return string Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description($full, $not, \core_availability\info $info) {
+    public function get_description($full, $not, info $info) {
         global $USER, $DB;
 
-        $logmanager = get_log_manager();
-        if (!$readers = $logmanager->get_readers('core\log\sql_reader')) {
-            // Should be using 2.8, use old class.
-            $readers = $logmanager->get_readers('core\log\sql_select_reader');
-        }
-        $reader = array_pop($readers);
-        $context = $info->get_context();
-
-        $cmid = $this->get_selfid($info);
-
-        $where = 'contextid = :context AND userid = :userid AND crud = :crud';
-        $params = ['context' => $context->id, 'userid' => $USER->id, 'crud' => 'r'];
-
-        $viewslimit = $this->viewslimit;
-        if ($override = $DB->get_record('availability_maxviews', ['cmid' => $cmid, 'userid' => $USER->id])) {
-            if (!empty($override->lastreset)) {
-                $where .= ' AND timecreated >= :lastreset';
-                $params['lastreset'] = $override->lastreset;
-            }
-            if (!empty($override->maxviews)) {
-                $viewslimit = $override->maxviews;
-            }
-        }
-        $viewscount = $reader->get_events_select_count($where, $params);
+        [$viewscount, $viewslimit] = $this->get_views_count_limit($info);
 
         $a = new \stdclass();
         $a->viewslimit = $viewslimit;
@@ -163,27 +120,80 @@ class condition extends \core_availability\condition {
     }
 
     /**
+     * Return the count of views and the limits for a given user.
+     * @param info $info
+     * @param int $userid if null it will refer to the current user.
+     * @return [] [viewscount, viewslimit]
+     */
+    private function get_views_count_limit(info $info, $userid = null) {
+        global $DB;
+        if (empty($userid)) {
+            global $USER;
+            $userid = $USER->id;
+        }
+        // Check the type of overriding.
+        $type = get_config('availability_maxviews', 'overridetype');
+        $logmanager = get_log_manager();
+        if (!$readers = $logmanager->get_readers('core\log\sql_reader')) {
+            // Should be using 2.8, use old class.
+            $readers = $logmanager->get_readers('core\log\sql_select_reader');
+        }
+        $reader = array_pop($readers);
+        $context = $info->get_context();
+
+        [$cmid, $kind] = $this->get_selfid($info);
+
+        $where = 'contextid = :context AND userid = :userid AND crud = :crud';
+        $params = ['context' => $context->id, 'userid' => $userid, 'crud' => 'r'];
+
+        $viewslimit = $this->viewslimit;
+
+        // The table should contain a field that determine if the 'cmid' is for section or course module.
+        if ($kind === 'cm' // Till now the table only contains data of cms, and it might be conflicts in ids.
+        && $override = $DB->get_record('availability_maxviews', ['cmid' => $cmid, 'userid' => $userid])) {
+            if (!empty($override->lastreset)) {
+
+                $where .= ' AND timecreated >= :lastreset';
+                $params['lastreset'] = $override->lastreset;
+            }
+            // If there is override, set the new value according to the type of override.
+            if (!empty($override->maxviews)) {
+                if ($type === 'normal') {
+                    $viewslimit = $override->maxviews;
+                } else if ($type === 'add') {
+                    $viewslimit += $override->maxviews;
+                }
+            }
+        }
+
+        $viewscount = $reader->get_events_select_count($where, $params);
+
+        return [$viewscount, $viewslimit];
+    }
+
+    /**
      * Return current item ID (cmid or sectionid).
      *
      * @param info $info
-     * @return int cmid/sectionid/null
+     * @return array cmid/sectionid/null
      */
-    public function get_selfid(\core_availability\info $info): ?int {
+    public function get_selfid(info $info): ?array {
 
         if ($info instanceof info_module) {
             $cminfo = $info->get_course_module();
             if (!empty($cminfo->id)) {
-                 return $cminfo->id;
+                 return [$cminfo->id, 'cm'];
             }
         }
+
         if ($info instanceof info_section) {
             $section = $info->get_section();
             if (!empty($section->id)) {
-                return $section->id;
+                return [$section->id, 'section'];
             }
-
         }
-        return null;
+
+        return [null, ''];
     }
 
     /**

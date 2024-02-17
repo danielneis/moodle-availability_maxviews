@@ -22,24 +22,57 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['addition_override'] = 'Adding maxviews';
+$string['allenroled'] = 'All enrolled users';
 $string['ajaxerror'] = 'Error contacting server';
 $string['confirmdeleteoverride'] = 'Are you sure you want to delete the override for {$a}? This action cannot be undone.';
 $string['coursemodule'] = 'Course module';
+$string['coursemodule_help'] = 'select the course module needed to override it.';
 $string['description'] = 'Prevent access after user view the module a certain number of times.';
 $string['editingoverride'] = 'Editing override';
 $string['eithernotdescription'] = 'you have not reached the limit of {$a->viewslimit} views (you have {$a->viewscount} views)';
 $string['eitherdescription'] = 'you have reached the limit of {$a->viewslimit} views (you have {$a->viewscount} views)';
+$string['event_maxviews_override_created'] = 'Limitation of maxviews override created';
+$string['event_maxviews_override_description'] = 'The maxviews of user with id {$a->relateduserid} in course module with id {$a->cmid}
+override {$a->type} by user of id {$a->userid} and {$a->reset}';
+$string['event_maxviews_override_updated'] = 'Limitation of maxviews override updated';
+$string['event_maxviews_override_deleted'] = 'Limitation of maxviews override deleted';
 $string['fieldlabel'] = 'Maximum views:';
+$string['filterenroled'] = 'Only restricted users.';
+$string['filterusers'] = 'Filtration of enrolled users.';
+$string['filterusers_desc'] = 'Show all enrolled users in overriding process or show only users with no capability to ignore availability restriction (i.e. don\'t have the capability moodle/course:ignoreavailabilityrestrictions)';
 $string['lastreset'] = 'Last reset';
 $string['maxviews'] = 'Maximum views';
+$string['maxviews_add'] = 'Additional Maximum views';
+$string['maxviews_help'] = 'New maximum views to override the main maxviews of the course module for the selected user.';
+$string['maxviews_add_help'] = 'Additional maximum views added to the main maxviews of the course module for the selected user.';
+$string['maxviews:override'] = 'Ability to override maxviews';
 $string['newoverride'] = 'New override';
+$string['normal_override'] = 'Normal override';
+$string['overrider'] = 'Overrided by';
 $string['nooverrides'] = 'No overrides';
 $string['overrideadded'] = 'Override added';
 $string['overridedeleted'] = 'Override deleted';
+$string['overridetime'] = 'Overrided at';
+$string['overridetype'] = 'Type of override';
+$string['overridetype_desc'] = 'Normal override: discarding the old condition and set a new one for the selected users.
+
+Adding maxviews: This mean that you add or subtract the new value from the old maxviews.';
 $string['overrides'] = 'Overrides';
 $string['overrideupdated'] = 'Override updated';
 $string['participant'] = 'Participant';
+$string['participant_help'] = 'Select the participants you want to override the maximum views for the selected course module.';
 $string['pluginname'] = 'Max Views';
 $string['resetviews'] = 'Reset views';
+$string['resetviews_help'] = 'If this options checked, the views count for the selected users will be reset to zero for the selected course module.';
+$string['resetyes'] = 'maxviews has been reset';
+$string['resetno'] = 'maxviews not reset';
+$string['settingpage'] = 'Settings for availability condition maxviews';
 $string['title'] = 'Maximum Views';
 $string['validnumber'] = 'You must add a number higher than 0';
+$string['haveremainedviews'] = 'Attention: The maximum number of views for this is {$a->viewslimit} times (you currently have {$a->viewsremain} remain)';
+$string['outofviews'] = 'Sorry, you have reached the limit of {$a->viewslimit} views (you already viewed it {$a->viewscount} times)';
+$string['showlimits'] = 'Show views limit';
+$string['showlimits_desc'] = 'If selected the view limits will be shown under each course module so the users knows how much views left. (minimum limits viewed in case of multiple maxviews instances)';
+$string['showsetslimits'] = 'Show view limits in restriction set.';
+$string['showsetslimits_desc'] = 'If selected also show view limits even if the view limits is a part of restriction set. (minimum limits viewed in case of multiple maxviews instances)';

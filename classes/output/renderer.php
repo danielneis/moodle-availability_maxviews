@@ -15,7 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace availability_maxviews\output;
-defined('MOODLE_INTERNAL') || die();
 
 use plugin_renderer_base;
 use renderable;

@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Upgrade this availability condition.
  * @param int $oldversion The old version of the component.
@@ -25,7 +23,6 @@ function xmldb_availability_maxviews_upgrade($oldversion) {
     global $DB;
 
     $dbman = $DB->get_manager();
-
 
     if ($oldversion < 2023041201) {
 
@@ -57,5 +54,36 @@ function xmldb_availability_maxviews_upgrade($oldversion) {
         // Maxviews savepoint reached.
         upgrade_plugin_savepoint(true, 2023041201, 'availability', 'maxviews');
     }
+
+    if ($oldversion < 2023051717) {
+        // Define table availability_maxviews already created.
+        $table = new xmldb_table('availability_maxviews');
+        // Define the new field for overrider id.
+        $field = new xmldb_field('overriderid', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL, null, 0, 'userid');
+        $field->setComment('The id of the user who did the overriding process.');
+
+        // Conditionally launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define the new field for timecreated.
+        $field = new xmldb_field('timecreated', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL, null, 0, 'maxviews');
+        // Conditionally launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define the new field for timemodified.
+        $field = new xmldb_field('timeupdated', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL, null, 0, 'timecreated');
+        // Conditionally launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Maxviews savepoint reached.
+        upgrade_plugin_savepoint(true, 2023051717, 'availability', 'maxviews');
+    }
+
     return true;
 }
