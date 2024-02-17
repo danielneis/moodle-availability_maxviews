@@ -22,48 +22,52 @@
  */
 import $ from "jquery";
 
+const config = {attributes: false, childList: true, subtree: true};
+
 /**
  *
  * @param {number} cmid the cm id
  * @param {string} render the content
  */
 export const init = (cmid, render) => {
-
-    // For any other course format.
+    // For any course format.
     // Some course formats like Tiles uses Ajax to display course modules.
     // Use mutation observers to observe any change in the main region
     // to display the required information.
-    const config = { attributes: true, childList: true, subtree: true };
-
-    const callback = (mutationList) => {
-        for (const mutation of mutationList) {
-            if (mutation.type === "childList") {
-                appendViews(cmid, render);
-            }
-        }
-    };
 
     // Create an observer instance linked to the callback function
     const observer = new MutationObserver(callback);
 
-    $(document).ready(function() {
+    $(function() {
         let regionMain = document.getElementById("region-main");
         appendViews(cmid, render);
         // Start observing the target node for configured mutations
         observer.observe(regionMain, config);
     });
+
+    /**
+     * Callback when a mutation happen.
+     *
+     * @param {*} mutationList
+     */
+    function callback(mutationList) {
+        for (const mutation of mutationList) {
+            if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+                appendViews(cmid, render);
+            }
+        }
+    }
 };
 
 /**
  * append information about limitation of max number allowed to view a course module.
- *
  * @param {number} cmid
  * @param {string} render
  */
 function appendViews(cmid, render) {
-    let existed = $("#availability_maxviews_count_"+cmid);
+    let existed = $("#availability_maxviews_count_" + cmid);
     if (!existed || !existed[0] || existed[0] == undefined) {
-        let module = $("#module-"+cmid+" .description");
+        let module = $("#module-" + cmid + " .description");
         if (module !== null) {
             module.append(render);
         }
