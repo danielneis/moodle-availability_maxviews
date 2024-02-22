@@ -58,6 +58,9 @@ class index implements renderable, templatable {
         $modinfo = get_fast_modinfo($this->courseid);
 
         foreach ($overrides as $key => $o) {
+            if (!isset($modinfo->cms[$o->cmid])) {
+                continue;
+            }
             $params = ['courseid' => $this->courseid, 'id' => $o->id];
             $overrideurl = new moodle_url('/availability/condition/maxviews/override.php', $params);
             $overrides[$key]->overrideurl = $overrideurl->out(false);
