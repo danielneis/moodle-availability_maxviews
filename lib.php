@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+use availability_maxviews\local\display;
+
 /**
  * Plugin lib.
  *
@@ -22,12 +24,10 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 function availability_maxviews_extend_navigation_course(navigation_node $navigation, stdClass $course, context_course $context) {
     global $PAGE;
 
-    if (has_capability('moodle/course:manageactivities', $context)) {
+    if (has_capability('availability/maxviews:override', $context)) {
                 // Find the course settings node using the 'courseadmin' key.
 
         $url = new moodle_url('/availability/condition/maxviews/index.php', ['courseid' => $course->id]);
@@ -38,11 +38,19 @@ function availability_maxviews_extend_navigation_course(navigation_node $navigat
             navigation_node::NODETYPE_LEAF,
             null,
             'maxviews',
-            new pix_icon('i/report', $pluginname, 'availability_maxviews')
+            new pix_icon('i/report', $pluginname)
         );
         if ($PAGE->url->compare($url, URL_MATCH_BASE)) {
             $node->make_active();
         }
         $navigation->add_node($node);
     }
+}
+
+/**
+ * Callback to display the views limits for course modules.
+ */
+function availability_maxviews_before_footer() {
+    global $OUTPUT;
+    display::display($OUTPUT);
 }
