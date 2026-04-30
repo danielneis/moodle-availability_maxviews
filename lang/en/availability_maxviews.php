@@ -26,6 +26,7 @@ $string['ajaxerror'] = 'Error contacting server';
 $string['confirmdeleteoverride'] = 'Are you sure you want to delete the override for {$a}? This action cannot be undone.';
 $string['coursemodule'] = 'Course module';
 $string['description'] = 'Prevent access after user view the module a certain number of times.';
+$string['deletingoverride'] = 'Deleting max views override';
 $string['editingoverride'] = 'Editing override';
 $string['eithernotdescription'] = 'you have not reached the limit of {$a->viewslimit} views (you have {$a->viewscount} views)';
 $string['eitherdescription'] = 'you have reached the limit of {$a->viewslimit} views (you have {$a->viewscount} views)';

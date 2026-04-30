@@ -52,21 +52,25 @@ class override extends moodleform {
         );
         $mform->addRule('cmid', null, 'required', null, 'client');
 
-        $options = ['' => ''];
-        $users = get_enrolled_users(\context_course::instance($this->_customdata['courseid']));
-        foreach ($users as $u) {
-            $options[$u->id] = fullname($u);
-        }
-        $autocomplete = $mform->addElement(
-            'autocomplete',
-            'userid',
+        $autocomplete = $mform->addElement('autocomplete', 'userid',
             get_string('participant', 'availability_maxviews'),
-            $options,
+            [],
+            [
+                'ajax' => 'core_user/form_user_selector',
+                'multiple' => false,
+                'valuehtmlcallback' => function ($id) {
+                    global $OUTPUT;
+                    $user = \core_user::get_user($id, '*', MUST_EXIST);
+                    return $OUTPUT->user_picture($user, ['size' => 24]) . fullname($user);
+                },
+            ]
         );
         $mform->addRule('userid', null, 'required', null, 'client');
 
         $mform->addElement('text', 'maxviews', get_string('maxviews', 'availability_maxviews'));
-        $mform->setType('maxviews', PARAM_TEXT);
+        $mform->setType('maxviews', PARAM_INT);
+        $mform->addRule('maxviews', null, 'numeric', null, 'server');
+        $mform->addRule('maxviews', null, 'required', null, 'server');
 
         $mform->addElement('checkbox', 'resetviews', get_string('resetviews', 'availability_maxviews'));
         $mform->setType('resetviews', PARAM_INT);

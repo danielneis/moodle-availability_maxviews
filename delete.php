@@ -28,24 +28,32 @@ $id = required_param('id', PARAM_INT);
 $courseid = required_param('courseid', PARAM_INT);
 $confirm = optional_param('confirm', 0, PARAM_BOOL);
 
-require_login();
+require_login($courseid);
 
-$ctx = context_system::instance();
+$ctx = context_course::instance($courseid);
 require_capability('moodle/course:manageactivities', $ctx);
 
 if (confirm_sesskey()) {
     if ($confirm) {
-        $DB->delete_records('availability_maxviews', ['id' => $id]);
+        $DB->delete_records('availability_maxviews', ['id' => $id, 'courseid' => $courseid]);
         $url = new moodle_url('/availability/condition/maxviews/index.php', ['courseid' => $courseid]);
         redirect($url, get_string('overridedeleted', 'availability_maxviews'));
     } else {
-        $override = $DB->get_record('availability_maxviews', ['id' => $id]);
-        $user = $DB->get_record('user', ['id' => $override->userid], 'id,firstname,lastname');
+        $override = $DB->get_record('availability_maxviews', ['id' => $id, 'courseid' => $courseid], '*', MUST_EXIST);
+        $user = core_user::get_user($override->userid, '*', MUST_EXIST);
 
-        $PAGE->set_context(context_system::instance());
+        $PAGE->set_context($ctx);
         $PAGE->set_pagelayout('standard');
         $PAGE->set_url(new moodle_url('/availability/condition/maxviews/delete.php'));
         $PAGE->set_title(new lang_string('confirm'));
+        $PAGE->set_heading(get_string('deletingoverride', 'availability_maxviews'));
+        $coursenode = $PAGE->navigation->find($courseid, navigation_node::TYPE_COURSE);
+        $thingnode = $coursenode->add(
+            get_string('pluginname', 'availability_maxviews'),
+            new moodle_url('/availability/condition/maxview/index.php')
+        );
+        $thingnode->make_active();
+
 
         echo $OUTPUT->header();
 
@@ -63,4 +71,6 @@ if (confirm_sesskey()) {
         echo $OUTPUT->confirm($message, $buttoncontinue, $buttoncancel);
         echo $OUTPUT->footer();
     }
+} else {
+    throw new \moodle_exception('confirmsesskeybad');
 }

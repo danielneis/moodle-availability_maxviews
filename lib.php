@@ -35,7 +35,7 @@ function availability_maxviews_extend_navigation_course(navigation_node $navigat
         $node = navigation_node::create(
             $pluginname,
             $url,
-            navigation_node::NODETYPE_LEAF,
+            navigation_node::TYPE_SETTING,
             null,
             'maxviews',
             new pix_icon('i/report', $pluginname, 'availability_maxviews')

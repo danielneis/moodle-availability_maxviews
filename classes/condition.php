@@ -44,7 +44,11 @@ class condition extends \core_availability\condition {
      * @throws \coding_exception If invalid data structure.
      */
     public function __construct($structure) {
-        $this->viewslimit = $structure->viewslimit;
+        if (!is_object($structure) || !property_exists($structure, 'viewslimit')
+                || !is_numeric($structure->viewslimit)) {
+            throw new \coding_exception('Missing or invalid ->viewslimit for availability_maxviews condition');
+        }
+        $this->viewslimit = (int)$structure->viewslimit;
     }
 
     /**
@@ -82,12 +86,12 @@ class condition extends \core_availability\condition {
     public function is_available($not, \core_availability\info $info, $grabthelot, $userid) {
         global $DB;
 
-        $logmanager = get_log_manager();
-        if (!$readers = $logmanager->get_readers('core\log\sql_reader')) {
-            // Should be using 2.8, use old class.
-            $readers = $logmanager->get_readers('core\log\sql_select_reader');
+        $readers = get_log_manager()->get_readers('core\\log\\sql_reader');
+        $reader = end($readers);
+        if (!$reader) {
+            // No SQL log reader available — be conservative and allow access.
+            return $not ? false : true;
         }
-        $reader = array_pop($readers);
 
         $cmid = $this->get_selfid($info);
 
@@ -126,12 +130,8 @@ class condition extends \core_availability\condition {
     public function get_description($full, $not, \core_availability\info $info) {
         global $USER, $DB;
 
-        $logmanager = get_log_manager();
-        if (!$readers = $logmanager->get_readers('core\log\sql_reader')) {
-            // Should be using 2.8, use old class.
-            $readers = $logmanager->get_readers('core\log\sql_select_reader');
-        }
-        $reader = array_pop($readers);
+        $readers = get_log_manager()->get_readers('core\\log\\sql_reader');
+        $reader = end($readers);
         $context = $info->get_context();
 
         $cmid = $this->get_selfid($info);
@@ -149,7 +149,12 @@ class condition extends \core_availability\condition {
                 $viewslimit = $override->maxviews;
             }
         }
-        $viewscount = $reader->get_events_select_count($where, $params);
+        if ($reader) {
+            $viewscount = $reader->get_events_select_count($where, $params);
+        } else {
+            // No SQL log reader available — 0 views.
+            $viewscount = 0;
+        }
 
         $a = new \stdclass();
         $a->viewslimit = $viewslimit;

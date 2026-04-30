@@ -28,10 +28,10 @@ $courseid = required_param('courseid', PARAM_INT);
 
 require_login($courseid);
 
-$ctx = context_system::instance();
+$ctx = context_course::instance($courseid);
 require_capability('moodle/course:manageactivities', $ctx);
 
-$str = get_string('overrides', 'availability_maxviews');
+$str = get_string('pluginname', 'availability_maxviews');
 
 $url = new moodle_url('/availability/condition/maxviews/index.php');
 
@@ -43,6 +43,13 @@ $PAGE->set_heading($str);
 $output = $PAGE->get_renderer('availability_maxviews');
 
 $index = new \availability_maxviews\output\index($courseid);
+
+$coursenode = $PAGE->navigation->find($courseid, navigation_node::TYPE_COURSE);
+$thingnode = $coursenode->add(
+    get_string('pluginname', 'availability_maxviews'),
+    new moodle_url('/availability/condition/maxview/index.php')
+);
+$thingnode->make_active();
 
 echo $output->header(),
      $output->render($index),

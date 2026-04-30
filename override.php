@@ -29,7 +29,7 @@ $id = optional_param('id', 0, PARAM_INT);
 
 require_login($courseid);
 
-$ctx = context_system::instance();
+$ctx = context_course::instance($courseid);
 require_capability('moodle/course:manageactivities', $ctx);
 
 if ($id) {
@@ -46,7 +46,8 @@ $PAGE->set_heading($str);
 
 $form = new \availability_maxviews\form\override($url, ['courseid' => $courseid]);
 if ($id) {
-    $form->set_data($DB->get_record('availability_maxviews', ['id' => $id]));
+    $record = $DB->get_record('availability_maxviews', ['id' => $id, 'courseid' => $courseid], '*', MUST_EXIST);
+    $form->set_data($record);
 } else {
     $form->set_data(['courseid' => $courseid]);
 }
@@ -79,6 +80,12 @@ if ($form->is_cancelled()) {
     }
     redirect(new moodle_url('/availability/condition/maxviews/index.php', ['courseid' => $courseid]), $msg);
 } else {
+    $coursenode = $PAGE->navigation->find($courseid, navigation_node::TYPE_COURSE);
+    $thingnode = $coursenode->add(
+        get_string('pluginname', 'availability_maxviews'),
+        new moodle_url('/availability/condition/maxview/index.php')
+    );
+    $thingnode->make_active();
     echo $OUTPUT->header(),
          $form->render(),
          $OUTPUT->footer();
