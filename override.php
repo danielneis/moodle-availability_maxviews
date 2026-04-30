@@ -75,8 +75,14 @@ if ($form->is_cancelled()) {
             'maxviews' => $data->maxviews,
             'lastreset' => empty($data->resetviews) ? 0 : time(),
         ];
-        $DB->insert_record('availability_maxviews', $record);
-        $msg = get_string('overrideadded', 'availability_maxviews');
+        if ($r = $DB->get_record('availability_maxviews', ['cmid' => $data->cmid, 'userid' => $data->userid])) {
+            $record->id = $r->id;
+            $DB->update_record('availability_maxviews', $record);
+            $msg = get_string('overrideupdated', 'availability_maxviews');
+        } else {
+            $DB->insert_record('availability_maxviews', $record);
+            $msg = get_string('overrideadded', 'availability_maxviews');
+        }
     }
     redirect(new moodle_url('/availability/condition/maxviews/index.php', ['courseid' => $courseid]), $msg);
 } else {

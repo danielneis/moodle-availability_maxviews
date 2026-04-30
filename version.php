@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2026043000;
+$plugin->version = 2026043001;
 $plugin->requires = 2024100700; // Moodle 4.5 onwards
 $plugin->component = 'availability_maxviews';
 $plugin->release = 9;

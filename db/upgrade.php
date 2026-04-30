@@ -57,5 +57,28 @@ function xmldb_availability_maxviews_upgrade($oldversion) {
         // Maxviews savepoint reached.
         upgrade_plugin_savepoint(true, 2023041201, 'availability', 'maxviews');
     }
+    if ($oldversion < 2026043001) {
+
+        // Define index cmid_userid (unique) to be added to availability_maxviews.
+        $table = new xmldb_table('availability_maxviews');
+        $index = new xmldb_index('cmid_userid', XMLDB_INDEX_UNIQUE, ['cmid', 'userid']);
+
+        $sql = "SELECT DISTINCT cmid,userid FROM {availability_maxviews}";
+        $records = $DB->get_records_sql($sql);
+        foreach ($records as $r) {
+            $s = $DB->get_records('availability_maxviews', ['cmid' => $r->cmid, 'userid' => $r->userid]);
+            while (count($s) > 1) {
+                $ss = array_pop($s);
+                $DB->delete_records('availability_maxviews', ['id' => $ss->id]);
+            }
+        }
+        // Conditionally launch add index cmid_userid.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Maxviews savepoint reached.
+        upgrade_plugin_savepoint(true, 2026043001, 'availability', 'maxviews');
+    }
     return true;
 }
